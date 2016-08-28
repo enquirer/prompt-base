@@ -1,0 +1,79 @@
+{
+  "name": "enquirer-prompt",
+  "description": "Base prompt module for Enquirer.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jonschlinkert/enquirer-prompt",
+  "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "repository": "jonschlinkert/enquirer-prompt",
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/enquirer-prompt/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "index.js",
+    "LICENSE",
+    "README.md"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "component-emitter": "^1.2.1",
+    "is-number": "^2.1.0",
+    "log-utils": "^0.2.1"
+  },
+  "keywords": [
+    "answer",
+    "answers",
+    "ask",
+    "checkbox",
+    "choice",
+    "cli",
+    "command",
+    "enquirer",
+    "enquirerprompt",
+    "input",
+    "inquire",
+    "inquirer",
+    "interact",
+    "list",
+    "menu",
+    "password",
+    "prompt",
+    "prompts",
+    "question",
+    "readline",
+    "stdin",
+    "stdout",
+    "terminal",
+    "tty",
+    "ui"
+  ],
+  "devDependencies": {
+    "gulp-format-md": "^0.1.10"
+  },
+  "verb": {
+    "toc": false,
+    "layout": "default",
+    "tasks": [
+      "readme"
+    ],
+    "plugins": [
+      "gulp-format-md"
+    ],
+    "lint": {
+      "reflinks": true
+    },
+    "related": {
+      "list": []
+    },
+    "reflinks": [
+      "verb",
+      "verb-generate-readme"
+    ]
+  }
+}
