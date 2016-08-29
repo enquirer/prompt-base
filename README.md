@@ -1,6 +1,6 @@
 # enquirer-prompt [![NPM version](https://img.shields.io/npm/v/enquirer-prompt.svg?style=flat)](https://www.npmjs.com/package/enquirer-prompt) [![NPM downloads](https://img.shields.io/npm/dm/enquirer-prompt.svg?style=flat)](https://npmjs.org/package/enquirer-prompt)
 
-Base prompt module for Enquirer.
+Base prompt module used for creating custom prompt types for Enquirer.
 
 ## Install
 
@@ -25,6 +25,13 @@ util.inherits(CustomPrompt, BasePrompt);
 ```
 
 ## About
+
+### Related projects
+
+* [enquirer-question](https://www.npmjs.com/package/enquirer-question): Question object, used by Enquirer and prompt plugins. | [homepage](https://github.com/enquirer/enquirer-question "Question object, used by Enquirer and prompt plugins.")
+* [enquirer](https://www.npmjs.com/package/enquirer): Plugin-based prompt system for node.js | [homepage](https://github.com/jonschlinkert/enquirer "Plugin-based prompt system for node.js")
+* [prompt-choices](https://www.npmjs.com/package/prompt-choices): Create an array of multiple choice objects for use in prompts. | [homepage](https://github.com/enquirer/prompt-choices "Create an array of multiple choice objects for use in prompts.")
+* [readline-utils](https://www.npmjs.com/package/readline-utils): Readline utils, for moving the cursor, clearing lines, creating a readline interface, and more. | [homepage](https://github.com/enquirer/readline-utils "Readline utils, for moving the cursor, clearing lines, creating a readline interface, and more.")
 
 ### Contributing
 

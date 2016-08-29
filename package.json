@@ -1,6 +1,6 @@
 {
   "name": "enquirer-prompt",
-  "description": "Base prompt module for Enquirer.",
+  "description": "Base prompt module used for creating custom prompt types for Enquirer.",
   "version": "0.1.0",
   "homepage": "https://github.com/enquirer/enquirer-prompt",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
@@ -34,12 +34,13 @@
     "answer",
     "answers",
     "ask",
+    "bar",
+    "bottom",
     "checkbox",
     "choice",
     "cli",
     "command",
     "enquirer",
-    "enquirerprompt",
     "input",
     "inquire",
     "inquirer",
@@ -57,9 +58,6 @@
     "tty",
     "ui"
   ],
-  "devDependencies": {
-    "gulp-format-md": "^0.1.10"
-  },
   "verb": {
     "toc": false,
     "layout": "default",
@@ -69,15 +67,23 @@
     "plugins": [
       "gulp-format-md"
     ],
-    "lint": {
-      "reflinks": true
-    },
     "related": {
-      "list": []
+      "list": [
+        "enquirer",
+        "enquirer-question",
+        "prompt-choices",
+        "readline-utils"
+      ]
     },
     "reflinks": [
       "verb",
       "verb-generate-readme"
-    ]
+    ],
+    "lint": {
+      "reflinks": true
+    }
+  },
+  "devDependencies": {
+    "gulp-format-md": "^0.1.10"
   }
 }
