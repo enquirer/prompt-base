@@ -1,58 +1,45 @@
 'use strict';
 
-const log = require('log-utils');
-const Emitter = require('component-emitter');
-const Terminal = require('readline-terminal');
-const Question = require('enquirer-question');
-const isNumber = require('is-number');
-const UI = require('readline-ui');
+var log = require('log-utils');
+var define = require('define-property');
+var Emitter = require('component-emitter');
+var Question = require('enquirer-question');
+var isNumber = require('is-number');
+var utils = require('readline-utils');
+var UI = require('readline-ui');
 
 /**
  * Create a new Prompt
  */
 
-function Prompt(question, answers, rl) {
-  this.options = new Question(question);
+function Prompt(question, answers, ui) {
+  this.ui = ui;
+  this.question = new Question(question);
   this.answers = answers || {};
-  this.session = true;
+  this.status = 'pending';
+  this.active = true;
 
   // Check to make sure prompt requirements are there
-  if (!isString(this.options.message)) {
+  if (!isString(this.question.message)) {
     throw new TypeError('expected message to be a string');
   }
-  if (!isString(this.options.name)) {
+  if (!isString(this.question.name)) {
     throw new TypeError('expected name to be a string');
   }
 
   // Normalize choices
-  if (Array.isArray(this.options.choices)) {
-    this.options.addChoices(this.options.choices, answers);
+  if (Array.isArray(this.question.choices)) {
+    this.question.addChoices(this.question.choices, answers);
   }
 
-  if (typeof rl === 'undefined') {
-    this.session = false;
-    var ui = new UI(this.options);
-    rl = ui.rl;
+  define(this, 'options', this.question);
+  if (typeof this.ui === 'undefined') {
+    this.ui = new UI(this.options);
+    this.active = false;
   }
 
-  this.rl = rl;
-  this.close = this.rl.close.bind(this.rl);
-  this.terminal = new Terminal(this.rl);
-  this.status = 'pending';
+  this.rl = this.ui.rl;
   this.initPrompt();
-
-  this.rl.on('line', this.emit.bind(this, 'line'));
-  this.rl.input.on('keypress', function(val, key) {
-    key = key || {};
-    var event = { key: key, value: val };
-    if (event.key.name !== 'enter' && event.key.name !== 'return') {
-      event = normalize(event);
-      this.emit('keypress', event);
-      if (event.key.name) {
-        this.emit(event.key.name, event);
-      }
-    }
-  }.bind(this));
 };
 
 /**
@@ -66,17 +53,7 @@ Emitter(Prompt.prototype);
  */
 
 Prompt.prototype.initPrompt = function() {
-  if (typeof this.options.when === 'function') {
-    this.when = this.options.when.bind(this);
-  }
-  if (typeof this.options.validate === 'function') {
-    this.validate = this.options.validate.bind(this);
-  }
-  if (typeof this.options.filter === 'function') {
-    this.filter = this.options.filter.bind(this);
-  }
-
-  var message = this.options.message;
+  this.close = this.ui.close.bind(this.ui);
   var self = this;
 
   Object.defineProperty(this, 'message', {
@@ -84,7 +61,7 @@ Prompt.prototype.initPrompt = function() {
       message = val;
     },
     get: function() {
-      return self.format(message);
+      return self.format(self.question.message);
     }
   });
 };
@@ -94,6 +71,9 @@ Prompt.prototype.initPrompt = function() {
  */
 
 Prompt.prototype.when = function() {
+  if (typeof this.question.when === 'function') {
+    return this.question.when.apply(this, arguments);
+  }
   return true;
 };
 
@@ -101,11 +81,11 @@ Prompt.prototype.when = function() {
  * Default `validate` method, overridden in custom prompts.
  */
 
-Prompt.prototype.validate = function(val, cb) {
-  if (typeof this.options.validate === 'function') {
-    return this.options.validate(val, cb);
+Prompt.prototype.validate = function(val) {
+  if (typeof this.question.validate === 'function') {
+    return this.question.validate(val);
   }
-  return cb(true);
+  return true;
 };
 
 /**
@@ -113,6 +93,9 @@ Prompt.prototype.validate = function(val, cb) {
  */
 
 Prompt.prototype.filter = function(val) {
+  if (typeof this.question.filter === 'function') {
+    return this.question.filter.apply(this, arguments);
+  }
   return val;
 };
 
@@ -138,9 +121,10 @@ Prompt.prototype.noop = function(next) {
  */
 
 Prompt.prototype.run = function(answers) {
-  var name = this.options.name;
+  var name = this.question.name;
   var when = this.when(answers);
   var ask = when ? this.ask.bind(this) : this.noop;
+  var self = this;
 
   return new Promise(function(resolve) {
     ask(function(value) {
@@ -159,8 +143,8 @@ Prompt.prototype.run = function(answers) {
 
 Prompt.prototype.format = function(msg) {
   var message = log.green('?') + ' ' + log.bold(msg) + ' ';
-  if (typeof this.options.default !== 'undefined' && this.status !== 'answered') {
-    message += log.dim('(' + this.options.default + ') ');
+  if (typeof this.question.default !== 'undefined' && this.status !== 'answered') {
+    message += log.dim('(' + this.question.default + ') ');
   }
   return message;
 };
@@ -171,25 +155,6 @@ Prompt.prototype.format = function(msg) {
 
 function isString(val) {
   return val && typeof val === 'string';
-}
-
-/**
- * Normalize keypress events
- */
-
-function normalize(e) {
-  if (!e || !e.key || e.key.name === 'enter' || e.key.name === 'return') return;
-  if (e.key.name === 'up' || e.key.name === 'k' || (e.key.name === 'p' && e.key.ctrl)) {
-    e.key.name = 'up';
-  }
-  if (e.key.name === 'down' || e.key.name === 'j' || (e.key.name === 'n' && e.key.ctrl)) {
-    e.key.name = 'down';
-  }
-  if (isNumber(e.value) && !/^\s+$/.test(String(e.value))) {
-    e.value = Number(e.value);
-    e.key.name = 'number';
-  }
-  return e;
 }
 
 /**
