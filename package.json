@@ -2,11 +2,11 @@
   "name": "enquirer-prompt",
   "description": "Base prompt module for Enquirer.",
   "version": "0.1.0",
-  "homepage": "https://github.com/jonschlinkert/enquirer-prompt",
+  "homepage": "https://github.com/enquirer/enquirer-prompt",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
-  "repository": "jonschlinkert/enquirer-prompt",
+  "repository": "enquirer/enquirer-prompt",
   "bugs": {
-    "url": "https://github.com/jonschlinkert/enquirer-prompt/issues"
+    "url": "https://github.com/enquirer/enquirer-prompt/issues"
   },
   "license": "MIT",
   "files": [
@@ -23,8 +23,12 @@
   },
   "dependencies": {
     "component-emitter": "^1.2.1",
+    "define-property": "^0.2.5",
+    "enquirer-question": "^0.1.1",
     "is-number": "^2.1.0",
-    "log-utils": "^0.2.1"
+    "log-utils": "^0.2.1",
+    "readline-ui": "^0.1.0",
+    "readline-utils": "^0.1.0"
   },
   "keywords": [
     "answer",
