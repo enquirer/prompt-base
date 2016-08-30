@@ -1,12 +1,12 @@
 {
-  "name": "enquirer-prompt",
+  "name": "prompt-base",
   "description": "Base prompt module used for creating custom prompt types for Enquirer.",
   "version": "0.2.1",
-  "homepage": "https://github.com/enquirer/enquirer-prompt",
+  "homepage": "https://github.com/enquirer/prompt-base",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
-  "repository": "enquirer/enquirer-prompt",
+  "repository": "enquirer/prompt-base",
   "bugs": {
-    "url": "https://github.com/enquirer/enquirer-prompt/issues"
+    "url": "https://github.com/enquirer/prompt-base/issues"
   },
   "license": "MIT",
   "files": [
@@ -24,11 +24,9 @@
   "dependencies": {
     "component-emitter": "^1.2.1",
     "define-property": "^0.2.5",
-    "enquirer-question": "^0.2.1",
-    "is-number": "^2.1.0",
     "log-utils": "^0.2.1",
-    "readline-ui": "^0.1.0",
-    "readline-utils": "^0.1.0"
+    "prompt-question": "^0.3.0",
+    "readline-ui": "^0.1.0"
   },
   "devDependencies": {
     "gulp-format-md": "^0.1.10"
@@ -38,6 +36,7 @@
     "answers",
     "ask",
     "bar",
+    "base",
     "bottom",
     "checkbox",
     "choice",
@@ -76,9 +75,24 @@
         "enquirer-question",
         "prompt-choices",
         "readline-utils"
+      ],
+      "prompts": [
+        "enquirer-prompt-checkbox",
+        "enquirer-prompt-confirm",
+        "enquirer-prompt-editor",
+        "enquirer-prompt-expand",
+        "enquirer-prompt-input",
+        "enquirer-prompt-list",
+        "enquirer-prompt-password",
+        "enquirer-prompt-radio",
+        "enquirer-prompt-rawlist"
       ]
     },
     "reflinks": [
+      "enquirer",
+      "enquirer-prompt-input",
+      "prompt-question",
+      "readline-ui",
       "verb",
       "verb-generate-readme"
     ],
