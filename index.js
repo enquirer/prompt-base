@@ -32,6 +32,7 @@ function Prompt(question, answers, ui) {
   this.answers = answers || {};
   this.status = 'pending';
   this.session = false;
+  this.called = 0;
   this.ui = ui;
 
   // Check to make sure prompt requirements are there
@@ -53,7 +54,9 @@ function Prompt(question, answers, ui) {
   }
 
   this.rl = this.ui.rl;
+  this.resume = this.rl.resume.bind(this.rl);
   this.close = this.ui.close.bind(this.ui);
+  this.pause = this.ui.pause.bind(this.ui);
 };
 
 /**
@@ -127,17 +130,14 @@ Prompt.prototype.ask = function(callback) {
  */
 
 Prompt.prototype.run = function(answers) {
+  if (this.called) this.resume();
   var name = this.question.name;
   var when = this.when(answers);
   var ask = when ? this.ask.bind(this) : this.noop;
-  answers = answers || this.answers;
 
   return new Promise(function(resolve) {
     ask(function(value) {
-      if (typeof value !== 'undefined') {
-        answers[name] = value;
-      }
-      resolve(answers);
+      resolve(value);
     });
   });
 };
@@ -176,7 +176,8 @@ Prompt.prototype.submitAnswer = function() {
   this.render();
   this.ui.write();
   this.emit('answer', this.answer);
-  if (!this.session) this.close();
+  if (!this.session) this.pause();
+  this.called++;
   this.callback(this.answer);
 };
 
