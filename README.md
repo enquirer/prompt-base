@@ -42,7 +42,7 @@ prompt.ask(function(answer) {
 });
 ```
 
-### [.run](index.js#L129)
+### [.run](index.js#L132)
 
 Initialize a prompt and resolve answers. If `question.when` returns false,
 the prompt will be skipped.
@@ -62,25 +62,25 @@ Render the current prompt input. This can be replaced by custom prompts.
 prompt.ui.on('keypress', prompt.render.bind(prompt));
 ```
 
-### [.format](index.js#L189)
+### [.format](index.js#L190)
 
 Returns a formatted prompt message.
 
 * `returns` **{String}**
 
-### [.choices](index.js#L211)
+### [.choices](index.js#L212)
 
 Getter for getting the choices array from the question.
 
 * `returns` **{Object}**: Choices object
 
-### [.message](index.js#L228)
+### [.message](index.js#L229)
 
 Getter that returns `question.message` after passing it to [format](#format).
 
 * `returns` **{String}**: A formatted prompt message.
 
-### [.prefix](index.js#L246)
+### [.prefix](index.js#L247)
 
 Getter that returns the prefix to use before `question.message`. The
 default value is a green `?`.
