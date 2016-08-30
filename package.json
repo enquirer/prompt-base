@@ -1,7 +1,7 @@
 {
   "name": "enquirer-prompt",
   "description": "Base prompt module used for creating custom prompt types for Enquirer.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "homepage": "https://github.com/enquirer/enquirer-prompt",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "enquirer/enquirer-prompt",
