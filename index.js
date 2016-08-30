@@ -39,7 +39,7 @@ function Prompt(question, answers, ui) {
   }
 
   this.rl = this.ui.rl;
-  this.initPrompt();
+  this.close = this.ui.close.bind(this.ui);
 };
 
 /**
@@ -47,24 +47,6 @@ function Prompt(question, answers, ui) {
  */
 
 Emitter(Prompt.prototype);
-
-/**
- * Initialize prompt defaults
- */
-
-Prompt.prototype.initPrompt = function() {
-  this.close = this.ui.close.bind(this.ui);
-  var self = this;
-
-  Object.defineProperty(this, 'message', {
-    set: function(val) {
-      message = val;
-    },
-    get: function() {
-      return self.format(self.question.message);
-    }
-  });
-};
 
 /**
  * Default `when` method, overridden in custom prompts.
@@ -100,6 +82,17 @@ Prompt.prototype.filter = function(val) {
 };
 
 /**
+ * Default `transform` method, overridden in custom prompts.
+ */
+
+Prompt.prototype.transform = function(val) {
+  if (typeof this.question.transform === 'function') {
+    return this.question.transform.apply(this, arguments);
+  }
+  return val;
+};
+
+/**
  * Default `ask` method, overridden in custom prompts.
  */
 
@@ -121,12 +114,13 @@ Prompt.prototype.noop = function(next) {
  */
 
 Prompt.prototype.run = function(answers) {
-  var name = this.question.name;
-  var when = this.when(answers);
-  var ask = when ? this.ask.bind(this) : this.noop;
   var self = this;
 
   return new Promise(function(resolve) {
+    var name = self.question.name;
+    var when = self.when(answers);
+    var ask = when ? self.ask.bind(self) : self.noop;
+
     ask(function(value) {
       if (typeof value !== 'undefined') {
         answers[name] = value;
@@ -143,11 +137,29 @@ Prompt.prototype.run = function(answers) {
 
 Prompt.prototype.format = function(msg) {
   var message = log.green('?') + ' ' + log.bold(msg) + ' ';
-  if (typeof this.question.default !== 'undefined' && this.status !== 'answered') {
+  if (this.question.hasDefault && this.status !== 'answered') {
     message += log.dim('(' + this.question.default + ') ');
   }
   return message;
 };
+
+Object.defineProperty(Prompt.prototype, 'choices', {
+  set: function(val) {
+    throw new Error('.choices is a getter and cannot be defined');
+  },
+  get: function() {
+    return this.question.choices;
+  }
+});
+
+Object.defineProperty(Prompt.prototype, 'message', {
+  set: function() {
+    throw new Error('.message is a getter and cannot be defined');
+  },
+  get: function() {
+    return this.format(this.question.message);
+  }
+});
 
 /**
  * Utils
