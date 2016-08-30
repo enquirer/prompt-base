@@ -1,7 +1,7 @@
 {
   "name": "prompt-base",
   "description": "Base prompt module used for creating custom prompt types for Enquirer.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "homepage": "https://github.com/enquirer/prompt-base",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "repository": "enquirer/prompt-base",
@@ -25,7 +25,7 @@
     "component-emitter": "^1.2.1",
     "define-property": "^0.2.5",
     "log-utils": "^0.2.1",
-    "prompt-question": "^0.3.0",
+    "prompt-question": "^0.3.1",
     "readline-ui": "^0.1.0"
   },
   "devDependencies": {
