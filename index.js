@@ -31,7 +31,7 @@ function Prompt(question, answers, ui) {
   this.question = new Question(question);
   this.answers = answers || {};
   this.status = 'pending';
-  this.session = true;
+  this.session = false;
   this.ui = ui;
 
   // Check to make sure prompt requirements are there
@@ -43,14 +43,13 @@ function Prompt(question, answers, ui) {
   }
 
   // Normalize choices
-  if (this.question.choices) {
+  if (Array.isArray(this.question.choices)) {
     this.question.addChoices(this.question.choices, this.answers);
   }
 
   define(this, 'options', this.question);
   if (typeof this.ui === 'undefined') {
     this.ui = new UI(this.options);
-    this.session = false;
   }
 
   this.rl = this.ui.rl;
@@ -165,7 +164,6 @@ Prompt.prototype.render = function() {
 Prompt.prototype.onSubmit = function(input) {
   this.status = 'answered';
   this.answer = input;
-  this.emit('answer', input);
   this.submitAnswer();
 };
 
@@ -177,6 +175,7 @@ Prompt.prototype.onSubmit = function(input) {
 Prompt.prototype.submitAnswer = function() {
   this.render();
   this.ui.write();
+  this.emit('answer', this.answer);
   if (!this.session) this.close();
   this.callback(this.answer);
 };
@@ -200,31 +199,6 @@ Prompt.prototype.format = function(msg) {
  */
 
 Prompt.prototype.noop = noop;
-
-/**
- * Getter that true if the prompt is in a session with multiple questions. This value
- * is set in implementations by a prompt manager, like [enquirer].
- *
- * @name .session
- * @return {Boolean} True if a prompt session is active.
- * @api public
- */
-
-Object.defineProperty(Prompt.prototype, 'session', {
-  set: function(val) {
-    define(this, '_session', val);
-  },
-  get: function() {
-    if (typeof this._session === 'boolean') {
-      return this._session;
-    }
-    // enquirer 0.1.0 support. will be removed in future version
-    if (typeof this.active === 'boolean') {
-      return this.active;
-    }
-    return !!this._session;
-  }
-});
 
 /**
  * Getter for getting the choices array from the question.
