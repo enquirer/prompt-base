@@ -42,7 +42,7 @@ prompt.ask(function(answer) {
 });
 ```
 
-### [.run](index.js#L130)
+### [.run](index.js#L129)
 
 Initialize a prompt and resolve answers. If `question.when` returns false,
 the prompt will be skipped.
@@ -52,7 +52,7 @@ the prompt will be skipped.
 * `answers` **{Object}**
 * `returns` **{Promise}**
 
-### [.render](index.js#L155)
+### [.render](index.js#L154)
 
 Render the current prompt input. This can be replaced by custom prompts.
 
@@ -62,32 +62,25 @@ Render the current prompt input. This can be replaced by custom prompts.
 prompt.ui.on('keypress', prompt.render.bind(prompt));
 ```
 
-### [.format](index.js#L190)
+### [.format](index.js#L189)
 
 Returns a formatted prompt message.
 
 * `returns` **{String}**
 
-### [.session](index.js#L213)
-
-Getter that true if the prompt is in a session with multiple questions. This value
-is set in implementations by a prompt manager, like [enquirer](https://github.com/jonschlinkert/enquirer).
-
-* `returns` **{Boolean}**: True if a prompt session is active.
-
-### [.choices](index.js#L237)
+### [.choices](index.js#L211)
 
 Getter for getting the choices array from the question.
 
 * `returns` **{Object}**: Choices object
 
-### [.message](index.js#L254)
+### [.message](index.js#L228)
 
 Getter that returns `question.message` after passing it to [format](#format).
 
 * `returns` **{String}**: A formatted prompt message.
 
-### [.prefix](index.js#L272)
+### [.prefix](index.js#L246)
 
 Getter that returns the prefix to use before `question.message`. The
 default value is a green `?`.
