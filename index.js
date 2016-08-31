@@ -28,14 +28,23 @@ var UI = require('readline-ui');
  */
 
 function Prompt(question, answers, ui) {
+  if (!(this instanceof Prompt)) {
+    var proto = Object.create(Prompt.prototype);
+    Prompt.apply(proto, arguments);
+    return proto;
+  }
+
+  if (!question) {
+    throw new TypeError('expected question to be a string or object');
+  }
+
   this.question = new Question(question);
   this.answers = answers || {};
   this.status = 'pending';
-  this.session = false;
+  this.session = true;
   this.called = 0;
   this.ui = ui;
 
-  // Check to make sure prompt requirements are there
   if (!isString(this.question.message)) {
     throw new TypeError('expected message to be a string');
   }
@@ -50,13 +59,11 @@ function Prompt(question, answers, ui) {
 
   define(this, 'options', this.question);
   if (typeof this.ui === 'undefined') {
-    this.ui = new UI(this.options);
+    this.ui = UI.create(this.options);
   }
 
   this.rl = this.ui.rl;
-  this.resume = this.rl.resume.bind(this.rl);
   this.close = this.ui.close.bind(this.ui);
-  this.pause = this.ui.pause.bind(this.ui);
 };
 
 /**
@@ -130,13 +137,16 @@ Prompt.prototype.ask = function(callback) {
  */
 
 Prompt.prototype.run = function(answers) {
-  if (this.called) this.resume();
+  this.resume();
+
   var name = this.question.name;
   var when = this.when(answers);
   var ask = when ? this.ask.bind(this) : this.noop;
+  answers = answers || {};
 
   return new Promise(function(resolve) {
     ask(function(value) {
+      answers[name] = value;
       resolve(value);
     });
   });
@@ -152,7 +162,12 @@ Prompt.prototype.run = function(answers) {
  */
 
 Prompt.prototype.render = function() {
-  this.ui.render(this.message + this.rl.line);
+  var message = this.message;
+  var answer = this.status === 'answered'
+    ? log.cyan(this.answer)
+    : this.rl.line;
+
+  this.ui.render(message + answer);
 };
 
 /**
@@ -162,9 +177,7 @@ Prompt.prototype.render = function() {
  */
 
 Prompt.prototype.onSubmit = function(input) {
-  this.status = 'answered';
-  this.answer = input;
-  this.submitAnswer();
+  this.submitAnswer(input);
 };
 
 /**
@@ -172,12 +185,11 @@ Prompt.prototype.onSubmit = function(input) {
  * by custom prompts, but it probably won't need to be.
  */
 
-Prompt.prototype.submitAnswer = function() {
-  this.render();
-  this.ui.write();
+Prompt.prototype.submitAnswer = function(input) {
+  this.status = 'answered';
+  this.answer = input;
+  this.end();
   this.emit('answer', this.answer);
-  if (!this.session) this.pause();
-  this.called++;
   this.callback(this.answer);
 };
 
@@ -193,6 +205,41 @@ Prompt.prototype.format = function(msg) {
     message += log.dim('(' + this.question.default + ') ');
   }
   return message;
+};
+
+/**
+ * Pause readline
+ */
+
+Prompt.prototype.end = function() {
+  this.render();
+  this.ui.end();
+  this.pause();
+};
+
+/**
+ * Pause readline
+ */
+
+Prompt.prototype.pause = function() {
+  this.rl.pause();
+};
+
+/**
+ * Resume readline
+ */
+
+Prompt.prototype.resume = function() {
+  this.status = 'pending';
+  this.rl.resume();
+};
+
+/**
+ * Close readline
+ */
+
+Prompt.prototype.close = function() {
+  this.ui.close();
 };
 
 /**
@@ -252,6 +299,38 @@ Object.defineProperty(Prompt.prototype, 'prefix', {
     return this.question.prefix || (log.cyan('?') + ' ');
   }
 });
+
+/**
+ * Getter that gets the `readline-ui`. If a `ui` instance is not
+ *
+ * @name .choices
+ * @return {Object} Choices object
+ * @api public
+ */
+
+// Object.defineProperty(Prompt.prototype, 'ui', {
+//   set: function(ui) {
+//     define(this, '_ui', ui);
+//   },
+//   get: function() {
+//     if (typeof this._ui === 'undefined') {
+//       define(this, '_ui', UI.create(this.options));
+//     }
+//     return this._ui;
+//   }
+// });
+
+// Object.defineProperty(Prompt.prototype, 'rl', {
+//   set: function(rl) {
+//     define(this, '_rl', rl);
+//   },
+//   get: function() {
+//     if (typeof this._rl === 'undefined') {
+//       define(this, '_rl', this.ui.rl);
+//     }
+//     return this._rl;
+//   }
+// });
 
 /**
  * Utils
