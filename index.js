@@ -186,8 +186,10 @@ Prompt.prototype.onSubmit = function(input) {
  */
 
 Prompt.prototype.submitAnswer = function(input) {
-  this.status = 'answered';
-  this.answer = this.question.getAnswer(input);
+  if (this.status === 'pending') {
+    this.status = 'answered';
+    this.answer = this.question.getAnswer(input);
+  }
   this.end();
   this.emit('answer', this.answer);
   this.callback(this.answer);
@@ -299,38 +301,6 @@ Object.defineProperty(Prompt.prototype, 'prefix', {
     return this.question.prefix || (log.cyan('?') + ' ');
   }
 });
-
-/**
- * Getter that gets the `readline-ui`. If a `ui` instance is not
- *
- * @name .choices
- * @return {Object} Choices object
- * @api public
- */
-
-// Object.defineProperty(Prompt.prototype, 'ui', {
-//   set: function(ui) {
-//     define(this, '_ui', ui);
-//   },
-//   get: function() {
-//     if (typeof this._ui === 'undefined') {
-//       define(this, '_ui', UI.create(this.options));
-//     }
-//     return this._ui;
-//   }
-// });
-
-// Object.defineProperty(Prompt.prototype, 'rl', {
-//   set: function(rl) {
-//     define(this, '_rl', rl);
-//   },
-//   get: function() {
-//     if (typeof this._rl === 'undefined') {
-//       define(this, '_rl', this.ui.rl);
-//     }
-//     return this._rl;
-//   }
-// });
 
 /**
  * Utils
