@@ -187,7 +187,7 @@ Prompt.prototype.onSubmit = function(input) {
 
 Prompt.prototype.submitAnswer = function(input) {
   this.status = 'answered';
-  this.answer = input;
+  this.answer = this.question.getAnswer(input);
   this.end();
   this.emit('answer', this.answer);
   this.callback(this.answer);
