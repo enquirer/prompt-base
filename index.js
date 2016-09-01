@@ -87,11 +87,27 @@ Prompt.prototype.when = function() {
  * Default `validate` method, overridden in custom prompts.
  */
 
+// Prompt.prototype.validate = function(val) {
+//   if (typeof this.question.validate === 'function') {
+//     return this.question.validate.apply(this, arguments);
+//   }
+//   return true;
+// };
+
+/**
+ * Default `validate` method, overridden in custom prompts.
+ */
+
 Prompt.prototype.validate = function(val) {
+  var res = false;
+  var isValid = true;
   if (typeof this.question.validate === 'function') {
-    return this.question.validate.apply(this, arguments);
+    res = this.question.validate(val, this.answers);
+    if (res !== true) {
+      isValid = false;
+    }
   }
-  return true;
+  return { isValid: isValid, error: res, value: val };
 };
 
 /**
@@ -122,7 +138,7 @@ Prompt.prototype.transform = function(val) {
 
 Prompt.prototype.ask = function(callback) {
   this.callback = callback;
-  this.ui.on('keypress', this.render.bind(this));
+  this.ui.on('keypress', this.onKeypress.bind(this));
   this.ui.once('line', this.onSubmit.bind(this));
   this.render();
 };
@@ -152,6 +168,11 @@ Prompt.prototype.run = function(answers) {
   });
 };
 
+Prompt.prototype.onKeypress = function() {
+  var state = this.rl.line ? this.validate(this.rl.line) : {};
+  this.render(state);
+};
+
 /**
  * Render the current prompt input. This can be replaced by custom prompts.
  *
@@ -161,13 +182,17 @@ Prompt.prototype.run = function(answers) {
  * @api public
  */
 
-Prompt.prototype.render = function() {
+Prompt.prototype.render = function(state) {
+  var append = state && state.isValid === false
+    ? log.red('>> ') + state.error
+    : '';
+
   var message = this.message;
   var answer = this.status === 'answered'
     ? log.cyan(this.answer)
     : this.rl.line;
 
-  this.ui.render(message + answer);
+  this.ui.render(message + answer, append);
 };
 
 /**
@@ -177,7 +202,15 @@ Prompt.prototype.render = function() {
  */
 
 Prompt.prototype.onSubmit = function(input) {
-  this.submitAnswer(input);
+  this.answer = this.question.getAnswer(input);
+  var state = this.validate(this.answer);
+  if (state.isValid) {
+    this.status = 'answered';
+    this.submitAnswer();
+  } else {
+    this.rl.line = this.answer;
+    this.render(state);
+  }
 };
 
 /**
