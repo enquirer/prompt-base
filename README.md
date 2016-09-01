@@ -71,36 +71,30 @@ Render the current prompt input. This can be replaced by custom prompts.
 prompt.ui.on('keypress', prompt.render.bind(prompt));
 ```
 
-### [.format](index.js#L202)
+### [.format](index.js#L204)
 
 Returns a formatted prompt message.
 
 * `returns` **{String}**
 
-### [.choices](index.js#L259)
+### [.choices](index.js#L261)
 
 Getter for getting the choices array from the question.
 
 * `returns` **{Object}**: Choices object
 
-### [.message](index.js#L276)
+### [.message](index.js#L278)
 
 Getter that returns `question.message` after passing it to [format](#format).
 
 * `returns` **{String}**: A formatted prompt message.
 
-### [.prefix](index.js#L294)
+### [.prefix](index.js#L296)
 
 Getter that returns the prefix to use before `question.message`. The
 default value is a green `?`.
 
 * `returns` **{String}**: The formatted prefix.
-
-### [.choices](index.js#L311)
-
-Getter that gets the `readline-ui`. If a `ui` instance is not
-
-* `returns` **{Object}**: Choices object
 
 ## Examples
 
