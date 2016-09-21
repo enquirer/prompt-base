@@ -11,8 +11,7 @@
   "license": "MIT",
   "files": [
     "index.js",
-    "LICENSE",
-    "README.md"
+    "lib"
   ],
   "main": "index.js",
   "engines": {
@@ -22,11 +21,12 @@
     "test": "mocha"
   },
   "dependencies": {
-    "component-emitter": "^1.2.1",
+    "base": "^0.11.1",
+    "debug": "^2.2.0",
     "define-property": "^0.2.5",
     "log-utils": "^0.2.1",
-    "prompt-question": "^0.3.1",
-    "readline-ui": "^0.1.0"
+    "prompt-question": "^0.4.0",
+    "readline-ui": "^0.1.2"
   },
   "devDependencies": {
     "gulp-format-md": "^0.1.10",
