@@ -1,4 +1,4 @@
-# prompt-base [![NPM version](https://img.shields.io/npm/v/prompt-base.svg?style=flat)](https://www.npmjs.com/package/prompt-base) [![NPM downloads](https://img.shields.io/npm/dm/prompt-base.svg?style=flat)](https://npmjs.org/package/prompt-base) [![Build Status](https://img.shields.io/travis/enquirer/prompt-base.svg?style=flat)](https://travis-ci.org/enquirer/prompt-base)
+# prompt-base [![NPM version](https://img.shields.io/npm/v/prompt-base.svg?style=flat)](https://www.npmjs.com/package/prompt-base) [![NPM monthly downloads](https://img.shields.io/npm/dm/prompt-base.svg?style=flat)](https://npmjs.org/package/prompt-base)  [![NPM total downloads](https://img.shields.io/npm/dt/prompt-base.svg?style=flat)](https://npmjs.org/package/prompt-base) [![Linux Build Status](https://img.shields.io/travis/enquirer/prompt-base.svg?style=flat&label=Travis)](https://travis-ci.org/enquirer/prompt-base)
 
 > Base prompt module used for creating custom prompt types for Enquirer.
 
@@ -27,15 +27,9 @@ prompt.run()
 
 ## API
 
-### [Prompt](index.js#L30)
+### [Prompt](index.js#L32)
 
 Create a new Prompt with the given `question` object, `answers` and optional instance of [readline-ui](https://github.com/enquirer/readline-ui).
-
-**Params**
-
-* `question` **{Object}**: Plain object or instance of [prompt-question](https://github.com/enquirer/prompt-question).
-* `answers` **{Object}**: Optionally pass an answers object from a prompt manager (like [enquirer](https://github.com/jonschlinkert/enquirer)).
-* `ui` **{Object}**: Optionally pass an instance of [readline-ui](https://github.com/enquirer/readline-ui). If not passed, an instance is created for you.
 
 **Example**
 
@@ -51,7 +45,13 @@ prompt.ask(function(answer) {
 });
 ```
 
-### [.run](index.js#L139)
+**Params**
+
+* `question` **{Object}**: Plain object or instance of [prompt-question](https://github.com/enquirer/prompt-question).
+* `answers` **{Object}**: Optionally pass an answers object from a prompt manager (like [enquirer](https://github.com/enquirer/enquirer)).
+* `ui` **{Object}**: Optionally pass an instance of [readline-ui](https://github.com/enquirer/readline-ui). If not passed, an instance is created for you.
+
+### [.run](index.js#L140)
 
 Initialize a prompt and resolve answers. If `question.when` returns false,
 the prompt will be skipped.
@@ -61,7 +61,7 @@ the prompt will be skipped.
 * `answers` **{Object}**
 * `returns` **{Promise}**
 
-### [.render](index.js#L164)
+### [.render](index.js#L177)
 
 Render the current prompt input. This can be replaced by custom prompts.
 
@@ -71,30 +71,45 @@ Render the current prompt input. This can be replaced by custom prompts.
 prompt.ui.on('keypress', prompt.render.bind(prompt));
 ```
 
-### [.format](index.js#L204)
+### [.format](index.js#L278)
 
 Returns a formatted prompt message.
 
 * `returns` **{String}**
 
-### [.choices](index.js#L261)
+### [.choices](index.js#L336)
 
 Getter for getting the choices array from the question.
 
 * `returns` **{Object}**: Choices object
 
-### [.message](index.js#L278)
+### [.message](index.js#L353)
 
 Getter that returns `question.message` after passing it to [format](#format).
 
 * `returns` **{String}**: A formatted prompt message.
 
-### [.prefix](index.js#L296)
+### [.prefix](index.js#L371)
 
 Getter that returns the prefix to use before `question.message`. The
 default value is a green `?`.
 
 * `returns` **{String}**: The formatted prefix.
+
+### [.Separator](index.js#L391)
+
+Create a new `Separator` object. See [choices-separator](https://github.com/enquirer/choices-separator) for more details.
+
+**Example**
+
+```js
+new Prompt.Separator();
+```
+
+**Params**
+
+* `separator` **{String}**: Optionally pass a string to use as the separator.
+* `returns` **{Object}**: Returns a separator object.
 
 ## Examples
 
@@ -123,8 +138,6 @@ prompt.run()
   });
 ```
 
-See [enquirer-prompt-input](https://github.com/jonschlinkert/enquirer-prompt-input) for a more complete `input` prompt implementation.
-
 **Inherit**
 
 ```js
@@ -141,19 +154,22 @@ util.inherits(CustomPrompt, Prompt);
 
 The following custom prompts were created using this library:
 
-* [enquirer-prompt-checkbox](https://www.npmjs.com/package/enquirer-prompt-checkbox): Adds checkbox prompt support to Enquirer. | [homepage](https://github.com/enquirer/enquirer-prompt-checkbox "Adds checkbox prompt support to Enquirer.")
-* [enquirer-prompt-confirm](https://www.npmjs.com/package/enquirer-prompt-confirm): Adds `confirm` (yes/no) prompt support to Enquirer. | [homepage](https://github.com/enquirer/enquirer-prompt-confirm "Adds `confirm` (yes/no) prompt support to Enquirer.")
-* [enquirer-prompt-input](https://www.npmjs.com/package/enquirer-prompt-input): Input prompt plugin for Enquirer. This is the only prompt type included in Enquirer by… [more](https://github.com/jonschlinkert/enquirer-prompt-input) | [homepage](https://github.com/jonschlinkert/enquirer-prompt-input "Input prompt plugin for Enquirer. This is the only prompt type included in Enquirer by default and does not need to be registered separately.")
-* [enquirer-prompt-radio](https://www.npmjs.com/package/enquirer-prompt-radio): Adds `radio` prompt support to Enquirer. This prompt behaves like other radio-button interfaces, where only… [more](https://github.com/enquirer/enquirer-prompt-radio) | [homepage](https://github.com/enquirer/enquirer-prompt-radio "Adds `radio` prompt support to Enquirer. This prompt behaves like other radio-button interfaces, where only one choice is enabled whilst all others are disabled.")
-* [enquirer-prompt-rawlist](https://www.npmjs.com/package/enquirer-prompt-rawlist): Adds `rawlist` prompt support to [Enquirer](https://github.com/jonschlinkert/enquirer). | [homepage](https://github.com/enquirer/enquirer-prompt-rawlist "Adds `rawlist` prompt support to [Enquirer].")
+* [prompt-checkbox](https://www.npmjs.com/package/prompt-checkbox): Multiple-choice/checkbox prompt. Can be used standalone or with a prompt system like [Enquirer](https://github.com/enquirer/enquirer). | [homepage](https://github.com/enquirer/prompt-checkbox "Multiple-choice/checkbox prompt. Can be used standalone or with a prompt system like [Enquirer].")
+* [prompt-confirm](https://www.npmjs.com/package/prompt-confirm): Confirm (yes/no) prompt. Can be used standalone or with a prompt system like [Enquirer](https://github.com/enquirer/enquirer). | [homepage](https://github.com/enquirer/prompt-confirm "Confirm (yes/no) prompt. Can be used standalone or with a prompt system like [Enquirer].")
+* [prompt-editor](https://www.npmjs.com/package/prompt-editor): Editor prompt. Opens your text editor and waits for you to save your input during… [more](https://github.com/enquirer/prompt-editor) | [homepage](https://github.com/enquirer/prompt-editor "Editor prompt. Opens your text editor and waits for you to save your input during a prompt. Can be used standalone or with a prompt system like [Enquirer].")
+* [prompt-expand](https://www.npmjs.com/package/prompt-expand): Expand prompt. Can be used as a standalone prompt, or with a prompt system like… [more](https://github.com/enquirer/prompt-expand) | [homepage](https://github.com/enquirer/prompt-expand "Expand prompt. Can be used as a standalone prompt, or with a prompt system like [Enquirer].")
+* [prompt-list](https://www.npmjs.com/package/prompt-list): List-style prompt. Can be used as a standalone prompt, or with a prompt system like… [more](https://github.com/enquirer/prompt-list) | [homepage](https://github.com/enquirer/prompt-list "List-style prompt. Can be used as a standalone prompt, or with a prompt system like [Enquirer].")
+* [prompt-password](https://www.npmjs.com/package/prompt-password): Password prompt. Can be used as a standalone prompt, or with a prompt system like… [more](https://github.com/enquirer/prompt-password) | [homepage](https://github.com/enquirer/prompt-password "Password prompt. Can be used as a standalone prompt, or with a prompt system like [Enquirer].")
+* [prompt-radio](https://www.npmjs.com/package/prompt-radio): Radio prompt. This prompt behaves like other radio-button interfaces, where only one choice is enabled… [more](https://github.com/enquirer/prompt-radio) | [homepage](https://github.com/enquirer/prompt-radio "Radio prompt. This prompt behaves like other radio-button interfaces, where only one choice is enabled whilst all others are disabled. Can be used as a standalone prompt, or with a prompt system like [Enquirer].")
+* [prompt-rawlist](https://www.npmjs.com/package/prompt-rawlist): Rawlist prompt. Can be used as a standalone prompt, or with a prompt system like… [more](https://github.com/enquirer/prompt-rawlist) | [homepage](https://github.com/enquirer/prompt-rawlist "Rawlist prompt. Can be used as a standalone prompt, or with a prompt system like [Enquirer].")
 
 ## About
 
 ### Related projects
 
-* [enquirer-question](https://www.npmjs.com/package/enquirer-question): Question object, used by Enquirer and prompt plugins. | [homepage](https://github.com/enquirer/enquirer-question "Question object, used by Enquirer and prompt plugins.")
-* [enquirer](https://www.npmjs.com/package/enquirer): Plugin-based prompt system for node.js | [homepage](https://github.com/jonschlinkert/enquirer "Plugin-based prompt system for node.js")
+* [enquirer](https://www.npmjs.com/package/enquirer): Intuitive, plugin-based prompt system for node.js. Much faster and lighter alternative to Inquirer, with all… [more](https://github.com/enquirer/enquirer) | [homepage](https://github.com/enquirer/enquirer "Intuitive, plugin-based prompt system for node.js. Much faster and lighter alternative to Inquirer, with all the same prompt types and more, but without the bloat.")
 * [prompt-choices](https://www.npmjs.com/package/prompt-choices): Create an array of multiple choice objects for use in prompts. | [homepage](https://github.com/enquirer/prompt-choices "Create an array of multiple choice objects for use in prompts.")
+* [prompt-question](https://www.npmjs.com/package/prompt-question): Question object, used by Enquirer and prompt plugins. | [homepage](https://github.com/enquirer/prompt-question "Question object, used by Enquirer and prompt plugins.")
 * [readline-utils](https://www.npmjs.com/package/readline-utils): Readline utils, for moving the cursor, clearing lines, creating a readline interface, and more. | [homepage](https://github.com/enquirer/readline-utils "Readline utils, for moving the cursor, clearing lines, creating a readline interface, and more.")
 
 ### Contributing
@@ -194,4 +210,4 @@ Released under the [MIT license](https://github.com/enquirer/prompt-base/blob/ma
 
 ***
 
-_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.1.30, on September 01, 2016._
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.2.0, on December 07, 2016._

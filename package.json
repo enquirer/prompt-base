@@ -73,25 +73,24 @@
     "related": {
       "list": [
         "enquirer",
-        "enquirer-question",
         "prompt-choices",
+        "prompt-question",
         "readline-utils"
       ],
       "prompts": [
-        "enquirer-prompt-checkbox",
-        "enquirer-prompt-confirm",
-        "enquirer-prompt-editor",
-        "enquirer-prompt-expand",
-        "enquirer-prompt-input",
-        "enquirer-prompt-list",
-        "enquirer-prompt-password",
-        "enquirer-prompt-radio",
-        "enquirer-prompt-rawlist"
+        "prompt-checkbox",
+        "prompt-confirm",
+        "prompt-editor",
+        "prompt-expand",
+        "prompt-list",
+        "prompt-password",
+        "prompt-radio",
+        "prompt-rawlist"
       ]
     },
     "reflinks": [
+      "choices-separator",
       "enquirer",
-      "enquirer-prompt-input",
       "prompt-question",
       "readline-ui",
       "verb",
