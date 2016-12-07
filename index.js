@@ -159,9 +159,9 @@ Prompt.prototype.run = function(answers) {
 
 Prompt.prototype.ask = function(callback) {
   this.callback = callback;
-  this.only('keypress', this.onKeypress);
-  this.only('error', this.onError);
-  this.only('line', this.onSubmit);
+  this.only('keypress', this.onKeypress.bind(this));
+  this.only('error', this.onError.bind(this));
+  this.only('line', this.onSubmit.bind(this));
   this.render();
 };
 
@@ -335,10 +335,10 @@ Prompt.prototype.noop = utils.noop;
 
 Object.defineProperty(Prompt.prototype, 'choices', {
   set: function(val) {
-    throw new Error('.choices is a getter and cannot be defined');
+    define(this, '_choices', val);
   },
   get: function() {
-    return this.question.choices;
+    return (this._choices || this.question.choices);
   }
 });
 
