@@ -141,8 +141,11 @@ Prompt.prototype.run = function(answers) {
   this.resume();
 
   var name = this.question.name;
-  var when = this.when(answers);
-  var ask = when ? this.ask.bind(this) : this.noop;
+  if (!this.when(answers)) {
+    this.end(false);
+    return Promise.resolve();
+  }
+  var ask = this.ask.bind(this);
   answers = answers || {};
 
   return new Promise(function(resolve) {
@@ -287,9 +290,11 @@ Prompt.prototype.format = function(msg) {
  * Pause readline
  */
 
-Prompt.prototype.end = function() {
+Prompt.prototype.end = function(render) {
   this.only();
-  this.render();
+  if (render !== false) {
+    this.render();
+  }
   this.ui.end();
   this.pause();
 };
