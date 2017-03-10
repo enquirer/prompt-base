@@ -6,9 +6,6 @@ var foo = new Prompt({
   message: 'What is foo?',
   when: function() {
     return true;
-  },
-  validate: function(str) {
-    return !/^[a-z]+$/i.test(str) ? 'invalid value' : true;
   }
 });
 
@@ -22,9 +19,6 @@ var bar = new Prompt({
   },
   transform: function(answer) {
     return Promise.resolve(answer && answer.toUpperCase());
-  },
-  validate: function(str) {
-    return Promise.resolve(!/^[a-z]+$/i.test(str) ? 'invalid value' : true);
   }
 });
 

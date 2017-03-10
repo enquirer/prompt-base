@@ -1,14 +1,16 @@
 var Prompt = require('..');
 var answers = {};
 
+var confirm = new Prompt({
+  name: 'confirm',
+  message: 'Do you want to run'
+});
+
 var foo = new Prompt({
   name: 'foo',
   message: 'What is foo?',
   when: function() {
     return true;
-  },
-  validate: function(str) {
-    return !/^[a-z]+$/i.test(str) ? 'invalid value' : true;
   }
 });
 
@@ -16,15 +18,14 @@ var bar = new Prompt({
   name: 'bar',
   message: 'What is bar?',
   when: function(answers) {
-    return new Promise(function(resolve) {
-      resolve(['foo', 'bar'].indexOf(answers.foo) !== -1);
-    });
-  },
-  transform: function(answer) {
-    return Promise.resolve(answer && answer.toUpperCase());
-  },
-  validate: function(str) {
-    return Promise.resolve(!/^[a-z]+$/i.test(str) ? 'invalid value' : true);
+    if (['foo', 'bar'].indexOf(answers.foo) !== -1) {
+      confirm.question.message += ' bar';
+      return confirm.run()
+        .then(function(answer) {
+          return answer === 'y';
+        });
+    }
+    return false;
   }
 });
 
@@ -33,9 +34,6 @@ var baz = new Prompt({
   message: 'What is baz?',
   when: function(answers) {
     return ['foo', 'baz'].indexOf(answers.foo) !== -1;
-  },
-  transform: function(answer) {
-    return answer && answer.toUpperCase();
   }
 });
 
@@ -61,4 +59,3 @@ foo.run(answers)
           });
       });
   })
-

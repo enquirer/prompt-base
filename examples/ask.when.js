@@ -6,9 +6,6 @@ var foo = new Prompt({
   message: 'What is foo?',
   when: function() {
     return true;
-  },
-  validate: function(str) {
-    return !/^[a-z]+$/i.test(str) ? 'invalid value' : true;
   }
 });
 
@@ -19,12 +16,6 @@ var bar = new Prompt({
     return new Promise(function(resolve) {
       resolve(['foo', 'bar'].indexOf(answers.foo) !== -1);
     });
-  },
-  transform: function(answer) {
-    return Promise.resolve(answer && answer.toUpperCase());
-  },
-  validate: function(str) {
-    return Promise.resolve(!/^[a-z]+$/i.test(str) ? 'invalid value' : true);
   }
 });
 
@@ -33,9 +24,6 @@ var baz = new Prompt({
   message: 'What is baz?',
   when: function(answers) {
     return ['foo', 'baz'].indexOf(answers.foo) !== -1;
-  },
-  transform: function(answer) {
-    return answer && answer.toUpperCase();
   }
 });
 
@@ -62,3 +50,15 @@ foo.run(answers)
       });
   })
 
+
+
+// function ask(name) {
+//   return function() {
+//     return prompt.ask(name);
+//   };
+// }
+
+// prompt.ask('installer')
+//   .then(ask('unused'))
+//   .then(ask('missing'))
+//   .then(ask('install'))
