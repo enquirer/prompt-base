@@ -26,15 +26,18 @@
   },
   "dependencies": {
     "base": "^0.11.1",
-    "debug": "^2.3.3",
+    "debug": "^2.6.1",
     "define-property": "^0.2.5",
     "log-utils": "^0.2.1",
-    "prompt-question": "^0.4.0",
-    "readline-ui": "^0.1.2"
+    "mixin-deep": "^1.2.0",
+    "prompt-question": "^0.4.1",
+    "readline-ui": "^0.1.2",
+    "set-value": "^0.4.3"
   },
   "devDependencies": {
-    "gulp-format-md": "^0.1.10",
-    "mocha": "^3.0.2"
+    "bdd-stdin": "^0.2.0",
+    "intercept-stdout": "^0.1.2",
+    "mocha": "^3.2.0"
   },
   "keywords": [
     "answer",
