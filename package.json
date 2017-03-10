@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "bdd-stdin": "^0.2.0",
+    "gulp-format-md": "^0.1.11",
     "intercept-stdout": "^0.1.2",
     "mocha": "^3.2.0"
   },
@@ -85,6 +86,7 @@
         "readline-utils"
       ],
       "prompts": [
+        "prompt-autocomplete",
         "prompt-checkbox",
         "prompt-confirm",
         "prompt-editor",
