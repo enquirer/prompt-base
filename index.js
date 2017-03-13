@@ -67,6 +67,7 @@ function Prompt(question, answers, ui) {
   this.question.options.ui = this.ui;
   this.rl = this.ui.rl;
   this.bindEvents();
+  this.pause();
 };
 
 /**
@@ -165,6 +166,7 @@ Prompt.prototype.run = function(answers) {
  */
 
 Prompt.prototype.ask = function(callback) {
+  this.resume();
   this.callback = callback;
   this.only('keypress', this.onKeypress.bind(this));
   this.only('error', this.onError.bind(this));
@@ -329,6 +331,7 @@ Prompt.prototype.end = function(render) {
     this.render();
   }
   this.ui.end(render);
+  this.pause();
 };
 
 /**
