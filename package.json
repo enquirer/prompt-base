@@ -5,8 +5,8 @@
   "homepage": "https://github.com/enquirer/prompt-base",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "contributors": [
-    "Brian Woodward <brian.woodward@gmail.com> (https://twitter.com/doowb)",
-    "Jon Schlinkert <jon.schlinkert@sellside.com> (http://twitter.com/jonschlinkert)"
+    "Brian Woodward (https://twitter.com/doowb)",
+    "Jon Schlinkert (http://twitter.com/jonschlinkert)"
   ],
   "repository": "enquirer/prompt-base",
   "bugs": {
@@ -19,22 +19,23 @@
   ],
   "main": "index.js",
   "engines": {
-    "node": ">=4.0"
+    "node": ">=0.12.0"
   },
   "scripts": {
     "test": "mocha"
   },
   "dependencies": {
     "base": "^0.13.0",
-    "debug": "^2.6.3",
-    "define-property": "^0.2.5",
+    "debug": "^2.6.6",
+    "define-property": "^1.0.0",
     "log-utils": "^0.2.1",
-    "prompt-question": "^0.5.0",
+    "prompt-question": "^1.0.0",
     "readline-ui": "^0.1.3"
   },
   "devDependencies": {
     "gulp-format-md": "^0.1.12",
-    "mocha": "^3.2.0"
+    "mocha": "^3.3.0",
+    "repeat-string": "^1.6.1"
   },
   "keywords": [
     "answer",
@@ -93,14 +94,14 @@
         "prompt-rawlist"
       ]
     },
+    "lint": {
+      "reflinks": true
+    },
     "reflinks": [
       "choices-separator",
       "enquirer",
       "prompt-question",
       "readline-ui"
-    ],
-    "lint": {
-      "reflinks": true
-    }
+    ]
   }
 }
