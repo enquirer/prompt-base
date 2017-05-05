@@ -166,11 +166,12 @@ Prompt.prototype.run = function(answers) {
  */
 
 Prompt.prototype.ask = function(callback) {
-  this.resume();
   this.callback = callback;
+  this.resume();
   this.only('keypress', this.onKeypress.bind(this));
   this.only('error', this.onError.bind(this));
   this.only('line', this.onSubmit.bind(this));
+  this.emit('ask', this);
   this.render();
 };
 
@@ -190,10 +191,23 @@ Prompt.prototype.render = function(state) {
 
   var message = this.message;
   var answer = this.status === 'answered'
-    ? log.cyan(this.answer)
-    : this.rl.line;
+    ? log.cyan(this.mask(this.answer))
+    : this.mask(this.rl.line);
 
   this.ui.render(message + answer, append);
+};
+
+/**
+ * Mask the given answer if `prompt.options.mask` is a function
+ * @param {String} `str`
+ */
+
+Prompt.prototype.mask = function(answer) {
+  if (typeof answer !== 'string') return answer;
+  if (typeof this.options.mask === 'function') {
+    return this.options.mask.call(this, answer);
+  }
+  return answer;
 };
 
 /**
