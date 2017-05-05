@@ -30,7 +30,7 @@
     "define-property": "^1.0.0",
     "log-utils": "^0.2.1",
     "prompt-question": "^1.0.0",
-    "readline-ui": "^0.1.3"
+    "readline-ui": "^0.1.4"
   },
   "devDependencies": {
     "gulp-format-md": "^0.1.12",
