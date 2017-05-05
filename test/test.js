@@ -19,14 +19,50 @@ describe('prompt-base', function() {
     assert(prompt instanceof Prompt);
   });
 
-  it('should throw an error when invalid args are passed', function(cb) {
-    try {
+  it('should throw an error when invalid args are passed', function() {
+    assert.throws(function() {
       Prompt();
-      cb(new Error('expected an error'));
-    } catch (err) {
-      assert(err);
-      assert.equal(err.message, 'expected question to be a string or object');
+    }, /expected question to be a string or object/);
+
+    assert.throws(function() {
+      new Prompt();
+    }, /expected question to be a string or object/);
+  });
+
+  it('should return an answers object on run', function(cb) {
+    var prompt = new Prompt({
+      name: 'color',
+      message: 'What is your favorite color?',
+    });
+
+    prompt.on('ask', function() {
+      setImmediate(function() {
+        prompt.rl.write('blue\n');
+      });
+    });
+
+    prompt.run()
+      .then(function(answer) {
+        assert.deepEqual(answer, 'blue');
+        cb();
+      })
+  });
+
+  it('should return an answers object on ask', function(cb) {
+    var prompt = new Prompt({
+      name: 'color',
+      message: 'What is your favorite color?',
+    });
+
+    prompt.on('ask', function() {
+      setImmediate(function() {
+        prompt.rl.write('blue\n');
+      });
+    });
+
+    prompt.ask(function(answer) {
+      assert.deepEqual(answer, 'blue');
       cb();
-    }
+    });
   });
 });

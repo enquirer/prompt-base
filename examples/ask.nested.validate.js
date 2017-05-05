@@ -3,8 +3,8 @@ var prompt = new Prompt({
   name: 'first',
   message: 'What is your name?',
   validate: function(str) {
-    if (!/^[a-z]+$/i.test(str)) {
-      return 'invalid value';
+    if (!str || !/^[a-z]+$/i.test(str)) {
+      return 'a-z only!';
     }
     return true;
   }

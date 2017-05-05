@@ -14,7 +14,6 @@ foo.run()
         baz.run()
           .then(function(answers) {
             console.log(answers);
-            foo.close();
           });
       });
   })
