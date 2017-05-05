@@ -32,13 +32,11 @@ describe('prompt-base', function() {
   it('should return an answers object on run', function(cb) {
     var prompt = new Prompt({
       name: 'color',
-      message: 'What is your favorite color?',
+      message: 'What is your favorite color?'
     });
 
     prompt.on('ask', function() {
-      setImmediate(function() {
-        prompt.rl.write('blue\n');
-      });
+      prompt.write('blue\n');
     });
 
     prompt.run()
@@ -51,13 +49,11 @@ describe('prompt-base', function() {
   it('should return an answers object on ask', function(cb) {
     var prompt = new Prompt({
       name: 'color',
-      message: 'What is your favorite color?',
+      message: 'What is your favorite color?'
     });
 
     prompt.on('ask', function() {
-      setImmediate(function() {
-        prompt.rl.write('blue\n');
-      });
+      prompt.write('blue\n');
     });
 
     prompt.ask(function(answer) {

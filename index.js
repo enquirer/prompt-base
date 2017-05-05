@@ -184,17 +184,16 @@ Prompt.prototype.ask = function(callback) {
  * @api public
  */
 
-Prompt.prototype.render = function(state) {
-  var append = typeof state === 'string'
-    ? log.red('>> ') + state
+Prompt.prototype.render = function(err) {
+  var error = typeof err === 'string'
+    ? log.red('>> ') + err
     : '';
 
-  var message = this.message;
-  var answer = this.status === 'answered'
+  var message = this.message + (this.status === 'answered'
     ? log.cyan(this.mask(this.answer))
-    : this.mask(this.rl.line);
+    : this.mask(this.rl.line));
 
-  this.ui.render(message + answer, append);
+  this.ui.render(message, error);
 };
 
 /**
@@ -296,8 +295,8 @@ Prompt.prototype.submitAnswer = function(input) {
     this.status = 'answered';
     this.answer = this.question.getAnswer(input);
   }
-  this.end();
   this.emit('answer', this.answer);
+  this.end();
   this.callback(this.answer);
 };
 
@@ -333,6 +332,25 @@ Prompt.prototype.format = function(msg) {
     message += log.dim('(' + this.question.default + ') ');
   }
   return message;
+};
+
+/**
+ * Proxy to [readline.write][rl] for manually writing output.
+ * When called, rl.write() will resume the input stream if it
+ * has been paused.
+ *
+ * ```js
+ * prompt.write('blue\n');
+ * prompt.write(null, {ctrl: true, name: 'l'});
+ * ```
+ * @return {undefined}
+ * @api public
+ */
+
+Prompt.prototype.write = function(line, event) {
+  setImmediate(function() {
+    this.rl.write(line, event);
+  }.bind(this));
 };
 
 /**
@@ -406,7 +424,7 @@ Object.defineProperty(Prompt.prototype, 'choices', {
 
 Object.defineProperty(Prompt.prototype, 'message', {
   set: function() {
-    throw new Error('.message is a getter and cannot be defined');
+    throw new Error('prompt.message is a getter and cannot be defined');
   },
   get: function() {
     return this.format(this.question.message);
