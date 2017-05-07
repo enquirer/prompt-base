@@ -1,3 +1,4 @@
+var answers = [];
 var Prompt = require('..');
 var prompt = new Prompt({
   name: 'color',
@@ -5,16 +6,17 @@ var prompt = new Prompt({
 });
 
 prompt.run()
-  .then(function(answers) {
-    console.log(answers);
+  .then(function(answer) {
+    answers.push(answer);
 
     prompt.run()
-      .then(function(answers) {
-        console.log(answers);
+      .then(function(answer) {
+        answers.push(answer);
 
         prompt.run()
-          .then(function(answers) {
-            console.log(answers);
+          .then(function(answer) {
+            answers.push(answer);
+            console.log(answers)
           });
       });
   });
