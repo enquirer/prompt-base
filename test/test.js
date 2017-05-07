@@ -2,6 +2,7 @@
 
 require('mocha');
 var assert = require('assert');
+var answer = require('prompt-answer');
 var Prompt = require('..');
 
 describe('prompt-base', function() {
@@ -35,9 +36,7 @@ describe('prompt-base', function() {
       message: 'What is your favorite color?'
     });
 
-    prompt.on('ask', function() {
-      prompt.write('blue\n');
-    });
+    answer(prompt, 'blue');
 
     prompt.run()
       .then(function(answer) {
@@ -52,12 +51,10 @@ describe('prompt-base', function() {
       message: 'What is your favorite color?'
     });
 
-    prompt.on('ask', function() {
-      prompt.write('blue\n');
-    });
+    answer(prompt, 'green');
 
     prompt.ask(function(answer) {
-      assert.deepEqual(answer, 'blue');
+      assert.deepEqual(answer, 'green');
       cb();
     });
   });
