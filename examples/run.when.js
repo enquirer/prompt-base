@@ -41,21 +41,6 @@ foo.run(answers)
           .then(function(answer) {
             console.log(answer);
             console.log(answers);
-
-            baz.close();
           });
       });
   })
-
-
-
-// function ask(name) {
-//   return function() {
-//     return prompt.ask(name);
-//   };
-// }
-
-// prompt.ask('installer')
-//   .then(ask('unused'))
-//   .then(ask('missing'))
-//   .then(ask('install'))

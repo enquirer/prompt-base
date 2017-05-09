@@ -14,8 +14,7 @@
   },
   "license": "MIT",
   "files": [
-    "index.js",
-    "lib"
+    "index.js"
   ],
   "main": "index.js",
   "engines": {
@@ -30,7 +29,8 @@
     "define-property": "^1.0.0",
     "log-utils": "^0.2.1",
     "prompt-question": "^1.0.0",
-    "readline-ui": "^1.0.0"
+    "readline-ui": "^1.0.0",
+    "readline-utils": "^1.0.0"
   },
   "devDependencies": {
     "gulp-format-md": "^0.1.12",

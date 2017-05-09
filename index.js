@@ -6,7 +6,7 @@ var UI = require('readline-ui');
 var debug = require('debug')('prompt-base');
 var define = require('define-property');
 var Question = require('prompt-question');
-var utils = require('./lib/utils');
+var utils = require('readline-utils');
 
 /**
  * Create a new Prompt with the given `question` object, `answers` and optional instance
@@ -54,12 +54,17 @@ function Prompt(question, answers, ui) {
 
 Base.extend(Prompt);
 
+/**
+ * Initialize `Question` object
+ * @param {Object|String} `question`
+ */
+
 Prompt.prototype.initQuestion = function(question) {
   this.question = new Question(question);
-  if (!utils.isString(this.question.message)) {
+  if (!isString(this.question.message)) {
     throw new TypeError('expected message to be a string');
   }
-  if (!utils.isString(this.question.name)) {
+  if (!isString(this.question.name)) {
     throw new TypeError('expected name to be a string');
   }
 
@@ -69,7 +74,7 @@ Prompt.prototype.initQuestion = function(question) {
 };
 
 /**
- * Default `when` method, overridden in custom prompts.
+ * Set initial values
  */
 
 Prompt.prototype.initPrompt = function(ui) {
@@ -83,6 +88,7 @@ Prompt.prototype.initPrompt = function(ui) {
   this.session = true;
   this.called = 0;
   this.rl = this.ui.rl;
+  this.key = {};
   this.pause();
 };
 
@@ -90,9 +96,9 @@ Prompt.prototype.initPrompt = function(ui) {
  * Default `when` method, overridden in custom prompts.
  */
 
-Prompt.prototype.when = function(answers) {
+Prompt.prototype.when = function() {
   if (typeof this.question.when === 'function') {
-    return this.question.when.call(this, answers);
+    return this.question.when.apply(this, arguments);
   }
   return true;
 };
@@ -103,9 +109,22 @@ Prompt.prototype.when = function(answers) {
 
 Prompt.prototype.validate = function(answer) {
   if (typeof this.question.validate === 'function') {
-    return this.question.validate.call(this, answer);
+    return this.question.validate.apply(this, arguments);
   }
   return answer !== false;
+};
+
+/**
+ * Mask the given answer if `prompt.options.mask` is a function
+ * @param {String} `str`
+ */
+
+Prompt.prototype.mask = function(answer) {
+  if (typeof answer !== 'string') return answer;
+  if (typeof this.options.mask === 'function') {
+    return this.options.mask.apply(this, arguments);
+  }
+  return answer;
 };
 
 /**
@@ -114,10 +133,10 @@ Prompt.prototype.validate = function(answer) {
 
 Prompt.prototype.transform = function(answer) {
   if (typeof this.question.transform === 'function') {
-    return this.question.transform.call(this, answer);
+    return this.question.transform.apply(this, arguments);
   }
   if (typeof this.question.filter === 'function') {
-    return this.question.filter.call(this, answer);
+    return this.question.filter.apply(this, arguments);
   }
   return answer;
 };
@@ -199,16 +218,19 @@ Prompt.prototype.render = function(err) {
 };
 
 /**
- * Mask the given answer if `prompt.options.mask` is a function
- * @param {String} `str`
+ * Move the cursor in the specific `direction` when the
+ * given `event` is emitted.
+ *
+ * @param {String} `direction`
+ * @param {Object} `event`
+ * @api public
  */
 
-Prompt.prototype.mask = function(answer) {
-  if (typeof answer !== 'string') return answer;
-  if (typeof this.options.mask === 'function') {
-    return this.options.mask.call(this, answer);
+Prompt.prototype.move = function(direction, key) {
+  if (direction && typeof this.choices.move[direction] === 'function') {
+    this.position = this.choices.move[direction](this.position, key);
+    this.render();
   }
-  return answer;
 };
 
 /**
@@ -220,28 +242,10 @@ Prompt.prototype.mask = function(answer) {
  * @api public
  */
 
-Prompt.prototype.move = function(direction, key) {
-  if (direction && typeof this.choices.move[direction] === 'function') {
-    this.position = this.choices.move[direction](this.position, {key: key});
-    this.render();
-  }
-};
-
-/**
- * Default `keypress` event handler. This may be overridden in custom prompts.
- * @param {Object} `event`
- * @api public
- */
-
-Prompt.prototype.onKeypress = function(str, key) {
-  var self = this;
-  Promise.resolve(this.rl.line ? this.validate(this.rl.line) : true)
-    .then(function(state) {
-      self.action(state, str, key);
-    });
-};
-
 Prompt.prototype.action = function(state, str, key) {
+  this.state = state;
+  this.key = key;
+
   switch (key && key.name) {
     case 'space':
       this.onSpaceKey(str, key, state);
@@ -252,14 +256,40 @@ Prompt.prototype.action = function(state, str, key) {
     case 'number':
       this.onNumberKey(str, key, state);
       break;
-    default:
+    case 'up':
+    case 'right':
+    case 'down':
+    case 'left':
       if (this.choices) {
         this.move(key.name, key);
         break;
       }
+
+      this.render(state);
+      break;
+    default:
       this.render(state);
       break;
   }
+};
+
+/**
+ * Default `keypress` event handler. This may be overridden in custom prompts.
+ * @param {Object} `event`
+ * @api public
+ */
+
+Prompt.prototype.onKeypress = function(str, key) {
+  var isValid = this.rl.line ? this.validate(this.rl.line, key) : true;
+  var self = this;
+  Promise.resolve(isValid)
+    .then(function(state) {
+      self.action(state, str, key);
+    })
+    .catch(function(err) {
+      console.error(err);
+      process.exit(1);
+    })
 };
 
 Prompt.prototype.onNumberKey = function(str, key, state) {
@@ -273,28 +303,6 @@ Prompt.prototype.onNumberKey = function(str, key, state) {
     return;
   }
   this.render(state);
-};
-
-/**
- * When the answer is submitted (user presses `enter` key), re-render
- * and pass answer to callback. This may be replaced by custom prompts.
- * @param {Object} `input`
- * @api public
- */
-
-Prompt.prototype.onSubmit = function(input) {
-  input = this.answer = this.question.getAnswer(input);
-  var self = this;
-
-  Promise.resolve(this.validate(this.answer))
-    .then(function(isValid) {
-      if (isValid === true) {
-        self.submitAnswer(input);
-      } else {
-        self.rl.line += self.answer;
-        self.render(isValid);
-      }
-    });
 };
 
 /**
@@ -314,6 +322,10 @@ Prompt.prototype.onTabKey = function(str, key, state) {
  */
 
 Prompt.prototype.onSpaceKey = function(str, key, state) {
+  if (this.choices && typeof this.radio === 'function') {
+    this.radio();
+  }
+  this.spaceKeyPressed = true;
   this.render(state);
 };
 
@@ -328,6 +340,41 @@ Prompt.prototype.onError = function(str, key, state) {
 };
 
 /**
+ * When the answer is submitted (user presses `enter` key), re-render
+ * and pass answer to callback. This may be replaced by custom prompts.
+ * @param {Object} `input`
+ * @api public
+ */
+
+Prompt.prototype.onSubmit = function(input) {
+  var answer = this.answer = this.getAnswer(input);
+  var self = this;
+
+  this.once('answer', function() {
+    utils.showCursor(self.rl);
+  });
+
+  Promise.resolve(this.validate(this.answer))
+    .then(function(isValid) {
+      if (isValid === true) {
+        self.status = 'answered';
+        self.submitAnswer(answer);
+      } else {
+        self.rl.line += input;
+        self.render(isValid);
+      }
+    });
+};
+
+/**
+ * Get the answer to use
+ */
+
+Prompt.prototype.getAnswer = function(input) {
+  return this.question.getAnswer(input);
+};
+
+/**
  * Re-render and pass the final answer to the callback.
  * This can be replaced by custom prompts.
  */
@@ -337,16 +384,11 @@ Prompt.prototype.submitAnswer = function(input) {
     this.status = 'answered';
     this.answer = input;
   }
-
   setImmediate(function() {
     this.emit('answer', this.answer);
     this.end();
     this.callback(this.answer);
   }.bind(this));
-};
-
-Prompt.prototype.getAnswer = function() {
-  return this.question.getAnswer();
 };
 
 /**
@@ -441,10 +483,18 @@ Prompt.prototype.close = function() {
 };
 
 /**
+ * Separator
+ */
+
+Prompt.prototype.separator = function() {
+  return this.question.separator.apply(this, arguments);
+};
+
+/**
  * Used if `when` returns false
  */
 
-Prompt.prototype.noop = utils.noop;
+Prompt.prototype.noop = noop;
 
 /**
  * Getter for getting the choices array from the question.
@@ -513,6 +563,14 @@ Object.defineProperty(Prompt.prototype, 'prefix', {
  */
 
 Prompt.Separator = Question.Separator;
+
+function noop(next) {
+  next();
+}
+
+function isString(val) {
+  return val && typeof val === 'string';
+}
 
 /**
  * Expose `Prompt`
