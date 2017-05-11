@@ -39,19 +39,16 @@ var baz = new Prompt({
 
 foo.run(answers)
   .then(function(answer) {
-    answers[foo.question.name] = answer;
     console.log(answer);
     console.log(answers);
 
     return bar.run(answers)
       .then(function(answer) {
-        answers[bar.question.name] = answer;
         console.log(answer);
         console.log(answers);
 
         return baz.run(answers)
           .then(function(answer) {
-            answers[baz.question.name] = answer;
             console.log(answer);
             console.log(answers);
 

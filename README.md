@@ -1,4 +1,4 @@
-# prompt-base [![NPM version](https://img.shields.io/npm/v/prompt-base.svg?style=flat)](https://www.npmjs.com/package/prompt-base) [![NPM monthly downloads](https://img.shields.io/npm/dm/prompt-base.svg?style=flat)](https://npmjs.org/package/prompt-base) [![NPM total downloads](https://img.shields.io/npm/dt/prompt-base.svg?style=flat)](https://npmjs.org/package/prompt-base) [![Linux Build Status](https://img.shields.io/travis/enquirer/prompt-base.svg?style=flat&label=Travis)](https://travis-ci.org/enquirer/prompt-base) [![Windows Build Status](https://img.shields.io/appveyor/ci/enquirer/prompt-base.svg?style=flat&label=AppVeyor)](https://ci.appveyor.com/project/enquirer/prompt-base)
+# prompt-base [![NPM version](https://img.shields.io/npm/v/prompt-base.svg?style=flat)](https://www.npmjs.com/package/prompt-base) [![NPM monthly downloads](https://img.shields.io/npm/dm/prompt-base.svg?style=flat)](https://npmjs.org/package/prompt-base)  [![NPM total downloads](https://img.shields.io/npm/dt/prompt-base.svg?style=flat)](https://npmjs.org/package/prompt-base) [![Linux Build Status](https://img.shields.io/travis/enquirer/prompt-base.svg?style=flat&label=Travis)](https://travis-ci.org/enquirer/prompt-base) [![Windows Build Status](https://img.shields.io/appveyor/ci/enquirer/prompt-base.svg?style=flat&label=AppVeyor)](https://ci.appveyor.com/project/enquirer/prompt-base)
 
 > Base prompt module used for creating custom prompt types for Enquirer.
 
@@ -67,7 +67,7 @@ the prompt will be skipped.
 
 Default `ask` method. This mayb eb overridden in custom prompts.
 
-### [.render](index.js#L187)
+### [.render](index.js#L186)
 
 Render the current prompt input. This can be replaced by custom prompts.
 
@@ -77,7 +77,7 @@ Render the current prompt input. This can be replaced by custom prompts.
 prompt.ui.on('keypress', prompt.render.bind(prompt));
 ```
 
-### [.move](index.js#L221)
+### [.move](index.js#L208)
 
 Move the cursor in the specific `direction` when the
 given `event` is emitted.
@@ -87,7 +87,7 @@ given `event` is emitted.
 * `direction` **{String}**
 * `event` **{Object}**
 
-### [.onKeypress](index.js#L234)
+### [.onKeypress](index.js#L221)
 
 Default `keypress` event handler. This may be overridden in custom prompts.
 
@@ -95,7 +95,7 @@ Default `keypress` event handler. This may be overridden in custom prompts.
 
 * `event` **{Object}**
 
-### [.onSubmit](index.js#L253)
+### [.onSubmit](index.js#L240)
 
 When the answer is submitted (user presses `enter` key), re-render
 and pass answer to callback. This may be replaced by custom prompts.
@@ -104,7 +104,7 @@ and pass answer to callback. This may be replaced by custom prompts.
 
 * `input` **{Object}**
 
-### [.onTabKey](index.js#L274)
+### [.onTabKey](index.js#L261)
 
 Default `tab` event handler. This may be overridden in custom prompts.
 
@@ -112,7 +112,7 @@ Default `tab` event handler. This may be overridden in custom prompts.
 
 * `event` **{Object}**
 
-### [.onError](index.js#L284)
+### [.onError](index.js#L271)
 
 Default `error` event handler. This may be overridden in custom prompts.
 
@@ -120,38 +120,25 @@ Default `error` event handler. This may be overridden in custom prompts.
 
 * `event` **{Object}**
 
-### [.format](index.js#L329)
+### [.format](index.js#L316)
 
 Returns a formatted prompt message.
 
 * `returns` **{String}**
 
-### [.write](index.js#L350)
-
-Proxy to [readline.write](https://nodejs.org/api/readline.html#readline_rl_write_data_key) for manually writing output. When called, rl.write() will resume the input stream if it has been paused.
-
-* `returns` **{undefined}**
-
-**Example**
-
-```js
-prompt.write('blue\n');
-prompt.write(null, {ctrl: true, name: 'l'});
-```
-
-### [.choices](index.js#L408)
+### [.choices](index.js#L376)
 
 Getter for getting the choices array from the question.
 
 * `returns` **{Object}**: Choices object
 
-### [.message](index.js#L425)
+### [.message](index.js#L393)
 
 Getter that returns `question.message` after passing it to [format](#format).
 
 * `returns` **{String}**: A formatted prompt message.
 
-### [.prefix](index.js#L446)
+### [.prefix](index.js#L414)
 
 Getter that returns the prefix to use before `question.message`. The default value is a green `?`.
 
@@ -163,7 +150,7 @@ Getter that returns the prefix to use before `question.message`. The default val
 prompt.prefix = '!';
 ```
 
-### [.Separator](index.js#L466)
+### [.Separator](index.js#L434)
 
 Create a new `Separator` object. See [choices-separator](https://github.com/enquirer/choices-separator) for more details.
 
@@ -250,8 +237,8 @@ Please read the [contributing guide](.github/contributing.md) for advice on open
 
 | **Commits** | **Contributor** | 
 | --- | --- |
-| 57 | [jonschlinkert](https://github.com/jonschlinkert) |
-| 6 | [doowb](https://github.com/doowb) |
+| 49 | [jonschlinkert](https://github.com/jonschlinkert) |
+| 5 | [doowb](https://github.com/doowb) |
 
 ### Building docs
 
@@ -285,4 +272,4 @@ Released under the [MIT License](LICENSE).
 
 ***
 
-_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on May 05, 2017._
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.5.0, on April 12, 2017._

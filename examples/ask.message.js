@@ -9,6 +9,8 @@ var prompt = require('..')({
   }
 });
 
+prompt.message = 'What?';
+
 prompt.ask(function(answer) {
   console.log(answer);
 });
