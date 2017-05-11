@@ -265,7 +265,6 @@ Prompt.prototype.render = function(state) {
  *
  * @param {String} `direction`
  * @param {Object} `event`
- * @api public
  */
 
 Prompt.prototype.action = function(state, str, key) {

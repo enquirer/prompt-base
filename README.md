@@ -1,4 +1,4 @@
-# prompt-base [![NPM version](https://img.shields.io/npm/v/prompt-base.svg?style=flat)](https://www.npmjs.com/package/prompt-base) [![NPM monthly downloads](https://img.shields.io/npm/dm/prompt-base.svg?style=flat)](https://npmjs.org/package/prompt-base)  [![NPM total downloads](https://img.shields.io/npm/dt/prompt-base.svg?style=flat)](https://npmjs.org/package/prompt-base) [![Linux Build Status](https://img.shields.io/travis/enquirer/prompt-base.svg?style=flat&label=Travis)](https://travis-ci.org/enquirer/prompt-base) [![Windows Build Status](https://img.shields.io/appveyor/ci/enquirer/prompt-base.svg?style=flat&label=AppVeyor)](https://ci.appveyor.com/project/enquirer/prompt-base)
+# prompt-base [![NPM version](https://img.shields.io/npm/v/prompt-base.svg?style=flat)](https://www.npmjs.com/package/prompt-base) [![NPM monthly downloads](https://img.shields.io/npm/dm/prompt-base.svg?style=flat)](https://npmjs.org/package/prompt-base) [![NPM total downloads](https://img.shields.io/npm/dt/prompt-base.svg?style=flat)](https://npmjs.org/package/prompt-base) [![Linux Build Status](https://img.shields.io/travis/enquirer/prompt-base.svg?style=flat&label=Travis)](https://travis-ci.org/enquirer/prompt-base) [![Windows Build Status](https://img.shields.io/appveyor/ci/enquirer/prompt-base.svg?style=flat&label=AppVeyor)](https://ci.appveyor.com/project/enquirer/prompt-base)
 
 > Base prompt module used for creating custom prompt types for Enquirer.
 
@@ -53,21 +53,27 @@ prompt.ask(function(answer) {
 });
 ```
 
-### [.run](index.js#L134)
+### [.format](index.js#L170)
 
-Initialize a prompt and resolve answers. If `question.when` returns false,
-the prompt will be skipped.
+Returns a formatted prompt message.
+
+* `returns` **{String}**
+
+### [.ask](index.js#L183)
+
+Default `ask` method. This mayb eb overridden in custom prompts.
+
+### [.run](index.js#L203)
+
+Initialize a prompt and resolve answers. If `question.when`
+returns false, the prompt will be skipped.
 
 **Params**
 
 * `answers` **{Object}**
 * `returns` **{Promise}**
 
-### [.ask](index.js#L168)
-
-Default `ask` method. This mayb eb overridden in custom prompts.
-
-### [.render](index.js#L186)
+### [.render](index.js#L247)
 
 Render the current prompt input. This can be replaced by custom prompts.
 
@@ -77,25 +83,61 @@ Render the current prompt input. This can be replaced by custom prompts.
 prompt.ui.on('keypress', prompt.render.bind(prompt));
 ```
 
-### [.move](index.js#L208)
+### [.move](index.js#L315)
 
-Move the cursor in the specific `direction` when the
-given `event` is emitted.
+Move the cursor in the given `direction` when a `keypress`
+event is emitted.
 
 **Params**
 
 * `direction` **{String}**
 * `event` **{Object}**
 
-### [.onKeypress](index.js#L221)
+### [.onEnterKey](index.js#L327)
 
-Default `keypress` event handler. This may be overridden in custom prompts.
+Default `return` event handler. This may be overridden in custom prompts.
 
 **Params**
 
 * `event` **{Object}**
 
-### [.onSubmit](index.js#L240)
+### [.onError](index.js#L339)
+
+Default error event handler. If an `error` listener exist, an `error`
+event will be emitted, otherwise the error is logged onto `stderr` and
+the process is exited. This can be overridden in custom prompts.
+
+**Params**
+
+* `err` **{Object}**
+
+### [.onKeypress](index.js#L356)
+
+Default `keypress` event handler. This may be overridden
+in custom prompts.
+
+**Params**
+
+* `event` **{Object}**
+
+### [.onNumberKey](index.js#L374)
+
+Default `number` event handler. This may be overridden in
+custom prompts.
+
+**Params**
+
+* `event` **{Object}**
+
+### [.onSpaceKey](index.js#L393)
+
+Default `space` event handler. This may be overridden in custom prompts.
+
+**Params**
+
+* `event` **{Object}**
+
+### [.onSubmit](index.js#L409)
 
 When the answer is submitted (user presses `enter` key), re-render
 and pass answer to callback. This may be replaced by custom prompts.
@@ -104,7 +146,7 @@ and pass answer to callback. This may be replaced by custom prompts.
 
 * `input` **{Object}**
 
-### [.onTabKey](index.js#L261)
+### [.onTabKey](index.js#L430)
 
 Default `tab` event handler. This may be overridden in custom prompts.
 
@@ -112,33 +154,32 @@ Default `tab` event handler. This may be overridden in custom prompts.
 
 * `event` **{Object}**
 
-### [.onError](index.js#L271)
+### [.mute](index.js#L485)
 
-Default `error` event handler. This may be overridden in custom prompts.
+Proxy to [readline.write](https://nodejs.org/api/readline.html#readline_rl_write_data_key) for manually writing output. When called, rl.write() will resume the input stream if it has been paused.
 
-**Params**
+* `returns` **{undefined}**
 
-* `event` **{Object}**
+**Example**
 
-### [.format](index.js#L316)
+```js
+prompt.write('blue\n');
+prompt.write(null, {ctrl: true, name: 'l'});
+```
 
-Returns a formatted prompt message.
-
-* `returns` **{String}**
-
-### [.choices](index.js#L376)
+### [.choices](index.js#L535)
 
 Getter for getting the choices array from the question.
 
 * `returns` **{Object}**: Choices object
 
-### [.message](index.js#L393)
+### [.message](index.js#L552)
 
 Getter that returns `question.message` after passing it to [format](#format).
 
 * `returns` **{String}**: A formatted prompt message.
 
-### [.prefix](index.js#L414)
+### [.prefix](index.js#L573)
 
 Getter that returns the prefix to use before `question.message`. The default value is a green `?`.
 
@@ -150,7 +191,7 @@ Getter that returns the prefix to use before `question.message`. The default val
 prompt.prefix = '!';
 ```
 
-### [.Separator](index.js#L434)
+### [.Separator](index.js#L593)
 
 Create a new `Separator` object. See [choices-separator](https://github.com/enquirer/choices-separator) for more details.
 
@@ -169,7 +210,7 @@ new Prompt.Separator('---');
 
 **Instantiate**
 
-The main purpose of this library is to be inherited by other libraries to create custom prompt types. However, the main export is a function that can be instantiated to run basic "input" prompts, if you want to see how everything works, run examples, tests, etc.
+The main purpose of this library is to serve as a base for other libraries to create custom prompt types. _However, the main export is a function that can be instantiated to run basic "input" prompts_.
 
 ```js
 var Prompt = require('prompt-base');
@@ -201,8 +242,71 @@ function CustomPrompt(/*question, answers, rl*/) {
   Prompt.apply(this, arguments);
 }
 
-util.inherits(CustomPrompt, Prompt);
+Prompt.extend(CustomPrompt);
 ```
+
+## Overview
+
+**How it works**
+
+1. Run
+
+* When
+* Render
+
+1. Events/Actions
+
+* Validate
+* Transform
+* Submit
+
+## Debugging
+
+Debugging readline issues can be a pain. If you're experiencing something that seems like a bug, please [let us know about it](../../issues). If you happen to be in the  mood for debugging, here are some suggestions and/or places to look to help you figure out what's happening.
+
+**Tips**
+
+* call `process.exit()` after logging out the value as you're debugging. This not only stops the process immediately, letting you know if the method was even executed, but it's also more likely to make whatever you're logging out visible  before it's overwritten by the readline
+* Wrap the value in an array: like `console.log([foo])` instead of `console.log(foo)`. I do this when debugging just about anything, as it forces the value to be rendered literally, instead of being formatted as output for the terminal.
+
+**In prompt-base (this module)**:
+
+Log out the `answer` value or any variants, like `this.answer`, or `input` in methods like `onSubmit`, and `submitAnswer`.
+
+```js
+console.log([this.answer]);
+// etc...
+```
+
+In the `.action` method, log out the arguments object:
+
+```js
+utils.action = function(state, str, key) {
+  console.log([arguments]);
+  process.exit();
+  // other code
+};
+```
+
+**[readline-utils](https://github.com/enquirer/readline-utils)**
+
+In the `.normalize` method in [readline-utils](https://github.com/enquirer/readline-utils), log out the arguments object:
+
+```js
+utils.normalize = function(s, key) {
+  console.log([arguments]);
+  process.exit();
+  // other code
+};
+```
+
+**[readline-ui](https://github.com/enquirer/readline-ui)**
+
+Log out the `keypress` events in the listener.
+
+**Misc**
+
+In libraries with `prompt-*` or `readline-*`, or `enquirer-*` in the name, look for places where something is `.emit`ing, or listening with `.on` or `.only` (which simply wraps `.on` to ensure that events aren't stacked when nested prompts are called), and log out the value there.
 
 ## In the wild
 
@@ -237,8 +341,8 @@ Please read the [contributing guide](.github/contributing.md) for advice on open
 
 | **Commits** | **Contributor** | 
 | --- | --- |
-| 49 | [jonschlinkert](https://github.com/jonschlinkert) |
-| 5 | [doowb](https://github.com/doowb) |
+| 63 | [jonschlinkert](https://github.com/jonschlinkert) |
+| 6 | [doowb](https://github.com/doowb) |
 
 ### Building docs
 
@@ -272,4 +376,4 @@ Released under the [MIT License](LICENSE).
 
 ***
 
-_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.5.0, on April 12, 2017._
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on May 11, 2017._
