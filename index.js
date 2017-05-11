@@ -314,7 +314,7 @@ Prompt.prototype.action = function(state, str, key) {
  */
 
 Prompt.prototype.move = function(key) {
-  if (this.choices.length) {
+  if (this.choices && this.choices.length) {
     return this.choices.action(key.name, this.position);
   }
 };
@@ -373,7 +373,7 @@ Prompt.prototype.onKeypress = function(str, key) {
  */
 
 Prompt.prototype.onNumberKey = function(str, key, state) {
-  if (this.choices.length) {
+  if (this.choices && this.choices.length) {
     var num = Number(key.value);
     if (num <= this.choices.length) {
       this.position = num - 1;
