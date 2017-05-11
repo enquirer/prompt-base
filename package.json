@@ -5,8 +5,8 @@
   "homepage": "https://github.com/enquirer/prompt-base",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "contributors": [
-    "Brian Woodward <brian.woodward@gmail.com> (https://twitter.com/doowb)",
-    "Jon Schlinkert <jon.schlinkert@sellside.com> (http://twitter.com/jonschlinkert)"
+    "Brian Woodward (https://twitter.com/doowb)",
+    "Jon Schlinkert (http://twitter.com/jonschlinkert)"
   ],
   "repository": "enquirer/prompt-base",
   "bugs": {
@@ -26,12 +26,12 @@
   },
   "dependencies": {
     "base": "^0.13.0",
-    "debug": "^2.6.3",
-    "define-property": "^0.2.5",
+    "debug": "^2.6.6",
+    "define-property": "^1.0.0",
     "log-utils": "^0.2.1",
-    "prompt-question": "^0.5.0",
-    "readline-ui": "^0.1.3",
-    "readline-utils": "^2.1.0"
+    "prompt-question": "^2.0.0",
+    "readline-ui": "^2.1.0",
+    "readline-utils": "^2.1.1"
   },
   "devDependencies": {
     "ansi-magenta": "^0.1.1",
@@ -41,7 +41,7 @@
     "gulp-format-md": "^0.1.12",
     "gulp-istanbul": "^1.1.1",
     "gulp-mocha": "^3.0.1",
-    "mocha": "^3.2.0",
+    "mocha": "^3.3.0",
     "repeat-string": "^1.6.1",
     "strip-color": "^0.1.0"
   },
