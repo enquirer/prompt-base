@@ -1,3 +1,4 @@
+var magenta = require('ansi-magenta');
 var prompt = require('..')({
   name: 'color',
   message: 'What is your favorite color?',
@@ -8,6 +9,8 @@ var prompt = require('..')({
     return true;
   }
 });
+
+prompt.prefix = magenta(' ❤ ');
 
 prompt.ask(function(answer) {
   console.log(answer);
