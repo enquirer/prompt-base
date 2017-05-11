@@ -106,7 +106,8 @@
       "choices-separator",
       "enquirer",
       "prompt-question",
-      "readline-ui"
+      "readline-ui",
+      "readline-utils"
     ],
     "lint": {
       "reflinks": true
