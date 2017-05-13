@@ -10,6 +10,10 @@ Install with [npm](https://www.npmjs.com/):
 $ npm install --save prompt-base
 ```
 
+## Release history
+
+See [the changlog](changelog.md) for details.
+
 ## Usage
 
 See the [examples folder](./examples) for more detailed usage examples.
