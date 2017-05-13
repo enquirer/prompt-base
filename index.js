@@ -67,8 +67,6 @@ Prompt.prototype.initQuestion = function(question) {
   }
 
   define(this, 'options', this.question);
-  this.answer = this.question.default;
-  this.name = this.question.name;
 };
 
 /**
@@ -83,6 +81,8 @@ Prompt.prototype.initPrompt = function(ui) {
     this.ui = UI.create(this.options);
   }
 
+  this.onError = this.onError.bind(this);
+  this.answer = this.getAnswer();
   this.errorMessage = this.question.errorMessage || 'invalid input';
   this.rl = this.ui.rl;
   this.status = 'pending';
@@ -259,13 +259,13 @@ Prompt.prototype.when = function() {
  */
 
 Prompt.prototype.ask = function(callback) {
-  this.rl.line = '';
   this.callback = callback.bind(this);
+  this.rl.line = '';
+  // this.resume();
   this.only('keypress', this.onKeypress.bind(this));
   this.only('error', this.onError.bind(this));
   this.only('line', this.onSubmit.bind(this));
   this.emit('ask', this);
-  this.resume();
   this.render();
 };
 
@@ -294,14 +294,9 @@ Prompt.prototype.ask = function(callback) {
 
 Prompt.prototype.run = function(answers) {
   answers = answers || {};
-
-  var transform = this.transform.bind(this);
-  var onError = this.onError.bind(this);
-  var when = this.when.bind(this);
-  var ask = this.ask.bind(this);
   var self = this;
 
-  return Promise.resolve(when(answers))
+  return Promise.resolve(this.when(answers))
     .then(function(when) {
       if (when === false) {
         self.end(false);
@@ -310,20 +305,20 @@ Prompt.prototype.run = function(answers) {
       }
 
       return new Promise(function(resolve) {
-        ask(function(answer) {
-          Promise.resolve(transform(answer))
-            .then(function(val) {
-              if (typeof val !== 'undefined') {
-                answers[self.name] = val;
-                self.question.answer = val;
+        self.ask(function(input) {
+          Promise.resolve(self.transform(input))
+            .then(function(answer) {
+              if (typeof answer !== 'undefined') {
+                answers[self.question.name] = answer;
+                self.question.answer = answer;
               }
-              resolve(val);
+              resolve(answer);
             })
-            .catch(onError);
+            .catch(self.onError);
         });
       });
     })
-    .catch(onError);
+    .catch(self.onError);
 };
 
 /**
@@ -368,30 +363,25 @@ Prompt.prototype.render = function(state) {
 
 Prompt.prototype.action = function(state, str, key) {
   this.position = this.position || 0;
-  this.state = state;
-  this.key = key;
 
   switch (key && key.name) {
     case 'enter':
     case 'return':
-      this.onEnterKey(str, key, state);
+      this.dispatch(key.name);
       return;
-    case 'number':
-      this.onNumberKey(str, key, state);
-      break;
-    case 'space':
-      this.onSpaceKey(str, key, state);
-      break;
     case 'tab':
-      this.onTabKey(str, key, state);
+      this.onTabKey(str, key);
+      break;
+    case 'number':
+      this.position = Number(key.value);
+      this.position = this.dispatch(key.name);
       break;
     case 'up':
     case 'down':
-      this.position = this.move(key);
-      break;
+    case 'space':
     case 'a':
     case 'i':
-      this.move(key);
+      this.position = this.dispatch(key.name);
       break;
     default: {
       break; // do nothing... yet
@@ -410,10 +400,8 @@ Prompt.prototype.action = function(state, str, key) {
  * @api public
  */
 
-Prompt.prototype.move = function(key) {
-  if (this.choices && this.choices.length) {
-    return this.choices.action(key.name, this.position);
-  }
+Prompt.prototype.dispatch = function(method) {
+  return this.choices.action(method, this.position, this.options.radio);
 };
 
 /**
@@ -422,7 +410,7 @@ Prompt.prototype.move = function(key) {
  * @api public
  */
 
-Prompt.prototype.onEnterKey = function(str, key, state) {
+Prompt.prototype.onEnterKey = function(str, key) {
   // do nothing, by default this is handled by "line"
 };
 
@@ -452,52 +440,12 @@ Prompt.prototype.onError = function(err) {
  */
 
 Prompt.prototype.onKeypress = function(str, key) {
-  var isValid = this.rl.line ? this.validate(this.rl.line, key) : true;
   var self = this;
-
-  Promise.resolve(isValid)
+  Promise.resolve(this.validate(str, key))
     .then(function(state) {
       self.action(state, str, key);
     })
     .catch(this.onError.bind(this));
-};
-
-/**
- * Default `number` event handler. This may be overridden in
- * custom prompts.
- * @param {Object} `event`
- * @api public
- */
-
-Prompt.prototype.onNumberKey = function(str, key, state) {
-  if (this.choices && this.choices.length) {
-    var num = Number(key.value);
-    if (num <= this.choices.length) {
-      this.position = num - 1;
-
-      if (this.radio) {
-        this.radio();
-      }
-    }
-  }
-};
-
-/**
- * Default `space` event handler. This may be overridden in custom prompts.
- * @param {Object} `event`
- * @api public
- */
-
-Prompt.prototype.onSpaceKey = function(str, key, state) {
-  this.spaceKeyPressed = true;
-  key.value = '';
-
-  if (typeof this.radio === 'function') {
-    this.radio();
-
-  } else if (this.choices && this.choices.length) {
-    this.choices.toggle(this.position);
-  }
 };
 
 /**
@@ -510,13 +458,12 @@ Prompt.prototype.onSpaceKey = function(str, key, state) {
 Prompt.prototype.onSubmit = function(input) {
   var answer = this.answer = this.getAnswer(input);
   var self = this;
-
-  Promise.resolve(this.validate(answer, {name: 'line', value: input}))
-    .then(function(isValid) {
-      if (isValid === true) {
+  Promise.resolve(this.validate(answer))
+    .then(function(state) {
+      if (state === true) {
         self.submitAnswer(answer);
       } else {
-        self.render(isValid);
+        self.render(state);
       }
     })
     .catch(this.onError.bind(this));
@@ -528,7 +475,7 @@ Prompt.prototype.onSubmit = function(input) {
  * @api public
  */
 
-Prompt.prototype.onTabKey = function(str, key, state) {
+Prompt.prototype.onTabKey = function(str, key) {
   // do nothing
 };
 
@@ -546,15 +493,15 @@ Prompt.prototype.getAnswer = function(input) {
  */
 
 Prompt.prototype.submitAnswer = function(input) {
-  this.answer = this.getAnswer(input);
-  this.status = 'answered';
-
   utils.showCursor(this.rl);
-  this.emit('answer', this.answer);
+  this.status = 'answered';
   this.end();
 
   setImmediate(function() {
+    this.answer = this.getAnswer(input);
+    this.emit('answer', this.answer);
     this.callback(this.answer);
+    this.rl.line = '';
   }.bind(this));
 };
 
@@ -684,6 +631,33 @@ Object.defineProperty(Prompt.prototype, 'prefix', {
     return this.question.prefix || (log.cyan('?') + ' ');
   }
 });
+
+/**
+ * Create a new `Question`. See [prompt-question][] for more details.
+ *
+ * ```js
+ * var question = new Prompt.Question({name: 'foo'});
+ * ```
+ * @param {Object} `options`
+ * @return {Object} Returns an instance of [prompt-question][]
+ * @api public
+ */
+
+Prompt.Question = Question;
+
+/**
+ * Create a new `Choices` object. See [prompt-choices][]
+ * for more details.
+ *
+ * ```js
+ * var choices = new Prompt.Choices(['foo', 'bar', 'baz']);
+ * ```
+ * @param {Array} `choices` Array of choices
+ * @return {Object} Returns an intance of Choices.
+ * @api public
+ */
+
+Prompt.Choices = Question.Choices;
 
 /**
  * Create a new `Separator` object. See [choices-separator][] for more details.

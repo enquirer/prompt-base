@@ -82,11 +82,11 @@ describe('.run', function() {
             assert.equal(typeof answer, 'string');
             assert.equal(answer, 'bar');
 
-          return prompt.run()
-            .then(function(answer) {
-              assert.equal(typeof answer, 'string');
-              assert.equal(answer, 'baz');
-            });
+            return prompt.run()
+              .then(function(answer) {
+                assert.equal(typeof answer, 'string');
+                assert.equal(answer, 'baz');
+              });
           });
       });
   });
@@ -97,7 +97,7 @@ describe('.run', function() {
     var answers = {};
 
     prompt.on('ask', function() {
-      prompt.name = keys.shift();
+      prompt.question.name = keys.shift();
       prompt.rl.emit('line', values.shift());
     });
 
@@ -113,12 +113,12 @@ describe('.run', function() {
             assert.equal(answer, 'bar');
             assert.deepEqual(answers, {a: 'foo', b: 'bar'});
 
-          return prompt.run(answers)
-            .then(function(answer) {
-              assert.equal(typeof answer, 'string');
-              assert.equal(answer, 'baz');
-              assert.deepEqual(answers, {a: 'foo', b: 'bar', c: 'baz'});
-            });
+            return prompt.run(answers)
+              .then(function(answer) {
+                assert.equal(typeof answer, 'string');
+                assert.equal(answer, 'baz');
+                assert.deepEqual(answers, {a: 'foo', b: 'bar', c: 'baz'});
+              });
           });
       });
   });

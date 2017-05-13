@@ -94,7 +94,8 @@ describe('.actions', function() {
     var events = [];
 
     prompt.choices = ['foo', 'bar', 'baz'];
-    prompt.radio = function() {
+    prompt.options.radio = true;
+    prompt.choices.radio = function() {
       events.push('radio');
     };
 
@@ -153,26 +154,15 @@ describe('.actions', function() {
     prompt.rl.input.emit('keypress', '\n');
   });
 
-  it('should call prompt.radio on "space" keypress events', function(cb) {
-    var events = [];
-
+  it('should call prompt.choices.radio on "space" keypress events', function(cb) {
     prompt.choices = ['foo', 'bar', 'baz'];
-    prompt.radio = function() {
-      events.push('radio');
-    };
 
-    prompt.only('keypress', function(name) {
-      events.push(name);
-    });
-
-    prompt.ask(function() {
-      assert.equal(events.length, 3);
-      assert.equal(events[0], 'space');
-      assert.equal(events[1], 'enter');
-      assert.equal(events[2], 'radio');
+    prompt.ask(function(answer) {
+      assert.deepEqual(answer, ['bar']);
       cb();
     });
 
+    prompt.rl.input.emit('keypress', 'n', {name: 'down', ctrl: true});
     prompt.rl.input.emit('keypress', ' ');
     prompt.rl.input.emit('keypress', '\n');
   });
@@ -213,25 +203,82 @@ describe('.actions', function() {
     prompt.rl.input.emit('keypress', '\n');
   });
 
-  it('should call "move" on "a" keypress events', function(cb) {
+  it('should toggle choices with "a" keypress events (1)', function(cb) {
+    prompt.choices = ['foo', 'bar', 'baz'];
+    prompt.ask(function(answer) {
+      assert.deepEqual(answer, ['foo', 'bar', 'baz']);
+      cb();
+    });
+
+    prompt.rl.input.emit('keypress', 'a');
+    prompt.rl.input.emit('keypress', '\n');
+  });
+
+  it('should toggle choices with "a" keypress events (2)', function(cb) {
+    prompt.choices = ['foo', 'bar', 'baz'];
+    prompt.ask(function(answer) {
+      assert.deepEqual(answer, []);
+      cb();
+    });
+
+    prompt.rl.input.emit('keypress', 'a');
+    prompt.rl.input.emit('keypress', 'a');
+    prompt.rl.input.emit('keypress', '\n');
+  });
+
+  it('should toggle choices with "a" keypress events (3)', function(cb) {
+    prompt.choices = ['foo', 'bar', 'baz'];
+    prompt.ask(function(answer) {
+      assert.deepEqual(answer, ['foo', 'bar', 'baz']);
+      cb();
+    });
+
+    prompt.rl.input.emit('keypress', 'a');
+    prompt.rl.input.emit('keypress', 'a');
+    prompt.rl.input.emit('keypress', 'a');
+    prompt.rl.input.emit('keypress', '\n');
+  });
+
+  it('should toggle choices with "a" keypress events (4)', function(cb) {
+    prompt.choices = ['foo', 'bar', 'baz'];
+    prompt.ask(function(answer) {
+      assert.deepEqual(answer, ['bar', 'baz']);
+      cb();
+    });
+
+    prompt.rl.input.emit('keypress', ' ');
+    prompt.rl.input.emit('keypress', 'a');
+    prompt.rl.input.emit('keypress', 'a');
+    prompt.rl.input.emit('keypress', 'a');
+    prompt.rl.input.emit('keypress', '\n');
+  });
+
+  it('should dispatch an action for "a" keypress event', function(cb) {
+    var actions = [];
     var events = [];
 
     prompt.choices = ['a', 'b', 'c'];
-    var move = prompt.move.bind(prompt);
-    prompt.move = function() {
-      events.push('move');
-      return move.apply(prompt, arguments);
+    var dispatch = prompt.dispatch.bind(prompt);
+
+    prompt.dispatch = function(key) {
+      actions.push(key);
+      return dispatch.apply(prompt, arguments);
     };
 
     prompt.only('keypress', function(name) {
       events.push(name);
     });
 
-    prompt.ask(function() {
-      assert.equal(events.length, 3);
+    prompt.ask(function(answer) {
+      assert.deepEqual(answer, ['a', 'b', 'c']);
+
+      assert.equal(actions.length, 2);
+      assert.equal(actions[0], 'a');
+      assert.equal(actions[1], 'enter');
+
+      assert.equal(events.length, 2);
       assert.equal(events[0], 'a');
       assert.equal(events[1], 'enter');
-      assert.equal(events[2], 'move');
       cb();
     });
 
