@@ -58,4 +58,28 @@ describe('.ask', function() {
 
     prompt.rl.emit('line', 'bar');
   });
+
+  it('should handle nested prompts', function(cb) {
+    var answers = ['foo', 'bar', 'baz'];
+
+    prompt.on('ask', function() {
+      prompt.rl.emit('line', answers.shift());
+    });
+
+    prompt.ask(function(answer) {
+      assert.equal(typeof answer, 'string');
+      assert.equal(answer, 'foo');
+
+      prompt.ask(function(answer) {
+        assert.equal(typeof answer, 'string');
+        assert.equal(answer, 'bar');
+
+        prompt.ask(function(answer) {
+          assert.equal(typeof answer, 'string');
+          assert.equal(answer, 'baz');
+          cb();
+        });
+      });
+    });
+  });
 });

@@ -19,9 +19,9 @@ describe('.transform', function() {
   it('should transform the answer string', function(cb) {
     var count = 0;
 
-    prompt.question.transform = function(answer) {
+    prompt.question.transform = function(input) {
       count++;
-      return answer.toUpperCase();
+      return input.toUpperCase();
     };
 
     prompt.run()
@@ -46,6 +46,28 @@ describe('.transform', function() {
     prompt.run()
       .then(function(answer) {
         assert.equal(typeof answer, 'undefined');
+        assert.equal(count, 1);
+        cb();
+      })
+      .catch(cb);
+
+    prompt.rl.emit('line', 'green');
+  });
+
+  it('should support promises', function(cb) {
+    var count = 0;
+
+    prompt.question.transform = function(input) {
+      return new Promise(function(resolve) {
+        count++;
+        resolve(input.toUpperCase());
+      });
+    };
+
+    prompt.run()
+      .then(function(answer) {
+        assert.equal(typeof answer, 'string');
+        assert.equal(answer, 'GREEN');
         assert.equal(count, 1);
         cb();
       })

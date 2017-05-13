@@ -72,7 +72,8 @@ Prompt.prototype.initQuestion = function(question) {
 };
 
 /**
- * Set initial values
+ * Set initial prompt values
+ * @param {Object} `ui` Instance of readline-ui
  */
 
 Prompt.prototype.initPrompt = function(ui) {
@@ -82,23 +83,31 @@ Prompt.prototype.initPrompt = function(ui) {
     this.ui = UI.create(this.options);
   }
 
-  this.question.options.ui = this.ui;
+  this.errorMessage = this.question.errorMessage || 'invalid input';
   this.rl = this.ui.rl;
   this.status = 'pending';
   this.session = true;
+  this.position = 0;
   this.called = 0;
   this.key = {};
   this.pause();
 };
 
+/**
+ * Initialize event listeners
+ */
+
 Prompt.prototype.initListeners = function() {
   var self = this;
   var on = {};
 
+  // patch `.emit` to ensure that setImmediate is used
+  // when `line` is emitted. this ensures that it's
+  // pushed onto the front of the next call stack (and
+  // isn't emitted to soon)
   if (!this.ui.lineEmitter) {
     this.ui.lineEmitter = true;
     var emit = this.rl.emit.bind(this.rl);
-
     this.rl.emit = function(name) {
       var args = arguments;
       if (name === 'line') {
@@ -110,55 +119,21 @@ Prompt.prototype.initListeners = function() {
     };
   }
 
+  // allow events to be defined using `question.on`. this is
+  // defined as a setter/getter to allow events to be lazily
+  // added after instantiation
   Object.defineProperty(this.question, 'on', {
     set: function(val) {
+      var keys = Object.keys(val);
       on = val;
-      var keys = Object.keys(on);
       for (var i = 0; i < keys.length; i++) {
-        self.only(keys[i], on[keys[i]].bind(self));
+        self.only(keys[i], val[keys[i]].bind(self));
       }
     },
     get: function() {
       return on;
     }
   });
-};
-
-/**
- * Default `when` method, overridden in custom prompts.
- */
-
-Prompt.prototype.when = function() {
-  if (typeof this.question.when === 'function') {
-    return this.question.when.apply(this, arguments);
-  }
-  return true;
-};
-
-/**
- * Default `validate` method, overridden in custom prompts.
- */
-
-Prompt.prototype.validate = function(answer) {
-  if (typeof this.question.validate === 'function') {
-    return this.question.validate.apply(this, arguments);
-  }
-  return answer !== false;
-};
-
-/**
- * Default `transform` method, overridden in custom prompts.
- */
-
-Prompt.prototype.transform = function(answer) {
-  answer = this.getAnswer(answer);
-  if (typeof this.question.transform === 'function') {
-    return this.question.transform.call(this, answer);
-  }
-  if (typeof this.question.filter === 'function') {
-    return this.question.filter.call(this, answer);
-  }
-  return answer;
 };
 
 /**
@@ -176,26 +151,143 @@ Prompt.prototype.format = function(msg) {
 };
 
 /**
- * Default `ask` method. This mayb eb overridden in custom prompts.
+ * Modify the answer value before it's returned. Must
+ * return a string or promise.
+ *
+ * ```js
+ * var answers = {};
+ * var Prompt = require('prompt-base');
+ * var prompt = new Prompt({
+ *   name: 'name',
+ *   message: 'What is your name?',
+ *   transform: function(input) {
+ *     return input.toUpperCase();
+ *   }
+ * });
+ * ```
+ * @return {String}
+ * @api public
+ */
+
+Prompt.prototype.transform = function(answer) {
+  answer = this.getAnswer(answer);
+  if (typeof this.question.transform === 'function') {
+    return this.question.transform.call(this, answer);
+  }
+  if (typeof this.question.filter === 'function') {
+    return this.question.filter.call(this, answer);
+  }
+  return answer;
+};
+
+/**
+ * Validate user input on `keypress` events and the answer
+ * value when it's submitted by the `line` event (when the user
+ * hits <kbd>enter</kbd>. This may be overridden in custom prompts.
+ * If the function returns `false`, either `question.errorMessage`
+ * or the default validation error message (`invalid input`) is used.
+ * Must return a boolean, string or promise.
+ *
+ * ```js
+ * var Prompt = require('prompt-base');
+ * var prompt = new Prompt({
+ *   name: 'first',
+ *   message: 'What is your name?',
+ *   errorMessage: 'alphabetical characters only',
+ *   validate: function(input) {
+ *     return input && !/^[a-z]+$/i.test(input);
+ *   }
+ * });
+ * ```
+ * @return {Boolean}
+ * @api public
+ */
+
+Prompt.prototype.validate = function(input, key) {
+  if (typeof this.question.validate === 'function') {
+    return this.question.validate.apply(this, arguments);
+  }
+  return input !== false;
+};
+
+/**
+ * A custom `.when` function may be defined to determine
+ * whether or not a question should be asked at all. Must
+ * return a boolean, undefined, or a promise.
+ * ```js
+ * var answers = {};
+ * var Prompt = require('prompt-base');
+ * var prompt = new Prompt({
+ *   name: 'name',
+ *   message: 'What is your name?',
+ *   when: function() {
+ *     return !answers.name;
+ *   }
+ * });
+ * ```
+ * @return {Boolean}
+ * @api public
+ */
+
+Prompt.prototype.when = function() {
+  if (typeof this.question.when === 'function') {
+    return this.question.when.apply(this, arguments);
+  }
+  return true;
+};
+
+/**
+ * Run the prompt with the given `callback` function. This method
+ * is similar to [run](#run), but is async (does not return a promise),
+ * and does not call [when](#when), [transform](#tranform) or
+ * [validate](#validate). This may be overridden in custom prompts.
+ *
+ * ```js
+ * var Prompt = require('prompt-base');
+ * var prompt = new Prompt({
+ *   name: 'name',
+ *   message: 'What is your name?'
+ * });
+ *
+ * prompt.ask(function(answer) {
+ *   console.log(answer);
+ * });
+ * ```
+ * @param {Function} `callback`
+ * @return {undefined}
  * @api public
  */
 
 Prompt.prototype.ask = function(callback) {
   this.rl.line = '';
   this.callback = callback.bind(this);
-  this.resume();
   this.only('keypress', this.onKeypress.bind(this));
   this.only('error', this.onError.bind(this));
   this.only('line', this.onSubmit.bind(this));
   this.emit('ask', this);
+  this.resume();
   this.render();
 };
 
 /**
- * Initialize a prompt and resolve answers. If `question.when`
- * returns false, the prompt will be skipped.
+ * Run the prompt and resolve answers. If [when](#when) is defined
+ * and returns false, the prompt will be skipped.
  *
- * @param {Object} `answers`
+ * ```js
+ * var answers = {};
+ * var Prompt = require('prompt-base');
+ * var prompt = new Prompt({
+ *   name: 'name',
+ *   message: 'What is your name?'
+ * });
+ *
+ * prompt.run(answers)
+ *   .then(function(answer) {
+ *     console.log(answer);
+ *     console.log(answers);
+ *   });
+ * ```
+ * @param {Object} `answers` (optional) When supplied, the answer value will be added to a property where the key is the question name.
  * @return {Promise}
  * @api public
  */
@@ -203,7 +295,6 @@ Prompt.prototype.ask = function(callback) {
 Prompt.prototype.run = function(answers) {
   answers = answers || {};
 
-  this.resume();
   var transform = this.transform.bind(this);
   var onError = this.onError.bind(this);
   var when = this.when.bind(this);
@@ -236,7 +327,11 @@ Prompt.prototype.run = function(answers) {
 };
 
 /**
- * Render the current prompt input. This can be replaced by custom prompts.
+ * (Re-)render the current prompt string. This is called to
+ * render the initial prompt, then it's called again each
+ * time something changes, like as the user types an input
+ * value, or a multiple-choice option is selected. This method
+ * may be overridden in custom prompts.
  *
  * ```js
  * prompt.ui.on('keypress', prompt.render.bind(prompt));
@@ -245,6 +340,10 @@ Prompt.prototype.run = function(answers) {
  */
 
 Prompt.prototype.render = function(state) {
+  if (state === false) {
+    state = this.errorMessage;
+  }
+
   var append = typeof state === 'string'
     ? log.red('>> ') + state
     : '';
@@ -295,8 +394,7 @@ Prompt.prototype.action = function(state, str, key) {
       this.move(key);
       break;
     default: {
-      // do nothing... yet
-      break;
+      break; // do nothing... yet
     }
   }
 
@@ -396,6 +494,9 @@ Prompt.prototype.onSpaceKey = function(str, key, state) {
 
   if (typeof this.radio === 'function') {
     this.radio();
+
+  } else if (this.choices && this.choices.length) {
+    this.choices.toggle(this.position);
   }
 };
 
@@ -407,13 +508,13 @@ Prompt.prototype.onSpaceKey = function(str, key, state) {
  */
 
 Prompt.prototype.onSubmit = function(input) {
-  this.answer = this.getAnswer(input);
+  var answer = this.answer = this.getAnswer(input);
   var self = this;
 
-  Promise.resolve(this.validate(this.answer))
+  Promise.resolve(this.validate(answer, {name: 'line', value: input}))
     .then(function(isValid) {
       if (isValid === true) {
-        self.submitAnswer();
+        self.submitAnswer(answer);
       } else {
         self.render(isValid);
       }
@@ -445,11 +546,16 @@ Prompt.prototype.getAnswer = function(input) {
  */
 
 Prompt.prototype.submitAnswer = function(input) {
+  this.answer = this.getAnswer(input);
   this.status = 'answered';
-  this.emit('answer', this.answer);
+
   utils.showCursor(this.rl);
+  this.emit('answer', this.answer);
   this.end();
-  this.callback(this.answer);
+
+  setImmediate(function() {
+    this.callback(this.answer);
+  }.bind(this));
 };
 
 /**
@@ -563,7 +669,7 @@ Object.defineProperty(Prompt.prototype, 'message', {
  * default value is a green `?`.
  *
  * ```js
- * prompt.prefix = '!';
+ * prompt.prefix = ' ❤ ';
  * ```
  * @name .prefix
  * @return {String} The formatted prefix.

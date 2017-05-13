@@ -64,4 +64,62 @@ describe('.run', function() {
 
     prompt.rl.emit('line', 'bar');
   });
+
+  it('should handle nested prompts', function() {
+    var values = ['foo', 'bar', 'baz'];
+
+    prompt.on('ask', function() {
+      prompt.rl.emit('line', values.shift());
+    });
+
+    return prompt.run()
+      .then(function(answer) {
+        assert.equal(typeof answer, 'string');
+        assert.equal(answer, 'foo');
+
+        return prompt.run()
+          .then(function(answer) {
+            assert.equal(typeof answer, 'string');
+            assert.equal(answer, 'bar');
+
+          return prompt.run()
+            .then(function(answer) {
+              assert.equal(typeof answer, 'string');
+              assert.equal(answer, 'baz');
+            });
+          });
+      });
+  });
+
+  it('should accumlate answers across nested prompts', function() {
+    var keys = ['a', 'b', 'c'];
+    var values = ['foo', 'bar', 'baz'];
+    var answers = {};
+
+    prompt.on('ask', function() {
+      prompt.name = keys.shift();
+      prompt.rl.emit('line', values.shift());
+    });
+
+    return prompt.run(answers)
+      .then(function(answer) {
+        assert.equal(typeof answer, 'string');
+        assert.equal(answer, 'foo');
+        assert.deepEqual(answers, {a: 'foo'});
+
+        return prompt.run(answers)
+          .then(function(answer) {
+            assert.equal(typeof answer, 'string');
+            assert.equal(answer, 'bar');
+            assert.deepEqual(answers, {a: 'foo', b: 'bar'});
+
+          return prompt.run(answers)
+            .then(function(answer) {
+              assert.equal(typeof answer, 'string');
+              assert.equal(answer, 'baz');
+              assert.deepEqual(answers, {a: 'foo', b: 'bar', c: 'baz'});
+            });
+          });
+      });
+  });
 });

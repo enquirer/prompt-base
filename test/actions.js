@@ -132,6 +132,27 @@ describe('.actions', function() {
     prompt.rl.input.emit('keypress', '\n');
   });
 
+  it('should toggle a choice on "space" keypress event', function(cb) {
+    var events = [];
+
+    prompt.choices = ['foo', 'bar', 'baz'];
+    prompt.only('keypress', function(name) {
+      events.push(name);
+    });
+
+    prompt.ask(function(answer) {
+      assert.equal(answer.length, 1);
+      assert.equal(answer[0], 'foo');
+      assert.equal(events.length, 2);
+      assert.equal(events[0], 'space');
+      assert.equal(events[1], 'enter');
+      cb();
+    });
+
+    prompt.rl.input.emit('keypress', ' ');
+    prompt.rl.input.emit('keypress', '\n');
+  });
+
   it('should call prompt.radio on "space" keypress events', function(cb) {
     var events = [];
 
@@ -293,7 +314,7 @@ describe('.actions', function() {
   it('should call "move" on "down" keypress events', function(cb) {
     var events = [];
     prompt.choices = ['foo', 'bar', 'baz'];
-    assert.equal(prompt.position, undefined);
+    assert.equal(prompt.position, 0);
 
     prompt.only('keypress', function(name) {
       events.push(name);

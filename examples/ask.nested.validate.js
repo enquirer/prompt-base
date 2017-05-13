@@ -4,7 +4,8 @@ var prompt = new Prompt({
   message: 'What is your name?',
   validate: function(str) {
     if (!str || !/^[a-z]+$/i.test(str)) {
-      return 'a-z only!';
+      // return 'a-z only!';
+      return false;
     }
     return true;
   }

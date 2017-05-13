@@ -20,23 +20,28 @@ describe('.validate', function() {
 
   it('should validate an answer', function(cb) {
     var count = 0;
+
     prompt.question.validate = function(val) {
-      if (val === 'bar') {
-        count++;
-        prompt.rl.emit('line', 'baz');
-        return true;
-      }
-      if (val === 'foo') {
-        count++;
-        prompt.rl.emit('line', 'bar');
-        return false;
+      switch (val) {
+        case 'foo':
+          count++;
+          prompt.rl.emit('line', 'bar');
+          return false;
+        case 'bar':
+          count++;
+          prompt.rl.emit('line', 'baz');
+          return false;
+        default: {
+          count++;
+          return true;
+        }
       }
     };
 
     prompt.run()
       .then(function(answer) {
         assert.deepEqual(answer, 'baz');
-        assert.equal(count, 2);
+        assert.equal(count, 3);
         unmute();
         cb();
       })
@@ -50,15 +55,19 @@ describe('.validate', function() {
 
     prompt.question.validate = function(val) {
       return new Promise(function(resolve) {
-        if (val === 'bar') {
-          count++;
-          prompt.rl.emit('line', 'baz');
-          return resolve(true);
-        }
-        if (val === 'foo') {
-          count++;
-          prompt.rl.emit('line', 'bar');
-          return resolve(false);
+        switch (val) {
+          case 'foo':
+            count++;
+            prompt.rl.emit('line', 'bar');
+            return resolve(false);
+          case 'bar':
+            count++;
+            prompt.rl.emit('line', 'baz');
+            return resolve(false);
+          default: {
+            count++;
+            return resolve(true);
+          }
         }
       });
     };
@@ -66,7 +75,7 @@ describe('.validate', function() {
     prompt.run()
       .then(function(answer) {
         assert.deepEqual(answer, 'baz');
-        assert.equal(count, 2);
+        assert.equal(count, 3);
         unmute();
         cb();
       })
@@ -79,15 +88,19 @@ describe('.validate', function() {
     var count = 0;
     var restore = capture(prompt.rl.output);
     prompt.question.validate = function(val) {
-      if (val === 'bar') {
-        count++;
-        prompt.rl.emit('line', 'baz');
-        return true;
-      }
-      if (val === 'foo') {
-        count++;
-        prompt.rl.emit('line', 'bar');
-        return 'wrong answer!';
+      switch (val) {
+        case 'foo':
+          count++;
+          prompt.rl.emit('line', 'bar');
+          return 'wrong answer!';
+        case 'bar':
+          count++;
+          prompt.rl.emit('line', 'baz');
+          return false;
+        default: {
+          count++;
+          return true;
+        }
       }
     };
 
@@ -96,7 +109,7 @@ describe('.validate', function() {
         var output = strip(restore(true)).split('\n').pop();
         assert.deepEqual(output, '>> wrong answer!');
         assert.deepEqual(answer, 'baz');
-        assert.equal(count, 2);
+        assert.equal(count, 3);
         unmute();
         cb();
       })

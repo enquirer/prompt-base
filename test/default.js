@@ -16,6 +16,20 @@ describe('.default', function() {
     unmute();
   });
 
+  it('should not use default value when answer is given', function(cb) {
+    prompt.question.default = 'woohooo!';
+    prompt.run()
+      .then(function(answer) {
+        assert.equal(typeof answer, 'string');
+        assert.equal(answer, 'foo');
+        cb();
+      })
+      .catch(cb);
+
+    prompt.rl.input.emit('keypress', 'foo');
+    prompt.rl.input.emit('keypress', '\n');
+  });
+
   it('should use default answer when answer is empty string', function(cb) {
     prompt.question.default = 'woohooo!';
     prompt.run()
