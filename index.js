@@ -261,7 +261,7 @@ Prompt.prototype.when = function() {
 Prompt.prototype.ask = function(callback) {
   this.callback = callback.bind(this);
   this.rl.line = '';
-  // this.resume();
+  this.resume();
   this.only('keypress', this.onKeypress.bind(this));
   this.only('error', this.onError.bind(this));
   this.only('line', this.onSubmit.bind(this));
@@ -367,11 +367,7 @@ Prompt.prototype.action = function(state, str, key) {
   switch (key && key.name) {
     case 'enter':
     case 'return':
-      this.dispatch(key.name);
       return;
-    case 'tab':
-      this.onTabKey(str, key);
-      break;
     case 'number':
       this.position = Number(key.value);
       this.position = this.dispatch(key.name);
@@ -379,6 +375,7 @@ Prompt.prototype.action = function(state, str, key) {
     case 'up':
     case 'down':
     case 'space':
+    case 'tab':
     case 'a':
     case 'i':
       this.position = this.dispatch(key.name);

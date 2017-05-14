@@ -154,7 +154,7 @@ describe('.actions', function() {
     prompt.rl.input.emit('keypress', '\n');
   });
 
-  it('should call prompt.choices.radio on "space" keypress events', function(cb) {
+  it('should dispatch an action for a "down" event', function(cb) {
     prompt.choices = ['foo', 'bar', 'baz'];
 
     prompt.ask(function(answer) {
@@ -262,7 +262,7 @@ describe('.actions', function() {
 
     prompt.dispatch = function(key) {
       actions.push(key);
-      return dispatch.apply(prompt, arguments);
+      return dispatch.apply(null, arguments);
     };
 
     prompt.only('keypress', function(name) {
@@ -272,9 +272,8 @@ describe('.actions', function() {
     prompt.ask(function(answer) {
       assert.deepEqual(answer, ['a', 'b', 'c']);
 
-      assert.equal(actions.length, 2);
+      assert.equal(actions.length, 1);
       assert.equal(actions[0], 'a');
-      assert.equal(actions[1], 'enter');
 
       assert.equal(events.length, 2);
       assert.equal(events[0], 'a');
