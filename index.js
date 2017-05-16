@@ -4,8 +4,9 @@ var Base = require('base');
 var log = require('log-utils');
 var UI = require('readline-ui');
 var debug = require('debug')('prompt-base');
-var define = require('define-property');
 var Question = require('prompt-question');
+var Actions = require('prompt-actions');
+var define = require('define-property');
 var utils = require('readline-utils');
 
 /**
@@ -30,6 +31,8 @@ var utils = require('readline-utils');
  */
 
 function Prompt(question, answers, ui) {
+  debug('initializing from <%s>', __filename);
+
   if (!question) {
     throw new TypeError('expected question to be a string or object');
   }
@@ -40,11 +43,16 @@ function Prompt(question, answers, ui) {
     return proto;
   }
 
-  debug('initializing from <%s>', __filename);
   Base.call(this);
 
+  this.question = this.options = new Question(question);
   this.answers = answers || {};
-  this.initQuestion(question);
+
+  if (typeof this.question.name !== 'string' || this.question.name === '') {
+    throw new TypeError('expected name to be a non-empty string');
+  }
+
+  this.actions = new Actions(this);
   this.initPrompt(ui);
   this.initListeners();
 };
@@ -54,20 +62,6 @@ function Prompt(question, answers, ui) {
  */
 
 Base.extend(Prompt);
-
-/**
- * Initialize `Question` object
- * @param {Object|String} `question`
- */
-
-Prompt.prototype.initQuestion = function(question) {
-  this.question = new Question(question);
-  if (!isString(this.question.name)) {
-    throw new TypeError('expected name to be a string');
-  }
-
-  define(this, 'options', this.question);
-};
 
 /**
  * Set initial prompt values
@@ -81,15 +75,14 @@ Prompt.prototype.initPrompt = function(ui) {
     this.ui = UI.create(this.options);
   }
 
+  this.rl = this.ui.rl;
+  this.errorMessage = log.red('>> invalid input');
   this.onError = this.onError.bind(this);
   this.answer = this.getAnswer();
-  this.errorMessage = this.question.errorMessage || 'invalid input';
-  this.rl = this.ui.rl;
   this.status = 'pending';
-  this.session = true;
+  this.session = false;
   this.position = 0;
   this.called = 0;
-  this.key = {};
   this.pause();
 };
 
@@ -137,17 +130,25 @@ Prompt.prototype.initListeners = function() {
 };
 
 /**
- * Returns a formatted prompt message.
+ * Format the prompt message.
+ *
+ * ```js
+ * var answers = {};
+ * var Prompt = require('prompt-base');
+ * var prompt = new Prompt({
+ *   name: 'name',
+ *   message: 'What is your name?',
+ *   transform: function(input) {
+ *     return input.toUpperCase();
+ *   }
+ * });
+ * ```
  * @return {String}
  * @api public
  */
 
 Prompt.prototype.format = function(msg) {
-  var message = this.prefix + log.bold(msg) + ' ';
-  if (this.question.hasDefault && this.status !== 'answered') {
-    message += log.dim('(' + this.question.default + ') ');
-  }
-  return message;
+  return this.prefix + log.bold(msg) + ' ';
 };
 
 /**
@@ -171,11 +172,11 @@ Prompt.prototype.format = function(msg) {
 
 Prompt.prototype.transform = function(answer) {
   answer = this.getAnswer(answer);
-  if (typeof this.question.transform === 'function') {
-    return this.question.transform.call(this, answer);
+  if (typeof this.options.transform === 'function') {
+    return this.options.transform.call(this, answer);
   }
-  if (typeof this.question.filter === 'function') {
-    return this.question.filter.call(this, answer);
+  if (typeof this.options.filter === 'function') {
+    return this.options.filter.call(this, answer);
   }
   return answer;
 };
@@ -204,8 +205,8 @@ Prompt.prototype.transform = function(answer) {
  */
 
 Prompt.prototype.validate = function(input, key) {
-  if (typeof this.question.validate === 'function') {
-    return this.question.validate.apply(this, arguments);
+  if (typeof this.options.validate === 'function') {
+    return this.options.validate.apply(this, arguments);
   }
   return input !== false;
 };
@@ -230,8 +231,8 @@ Prompt.prototype.validate = function(input, key) {
  */
 
 Prompt.prototype.when = function() {
-  if (typeof this.question.when === 'function') {
-    return this.question.when.apply(this, arguments);
+  if (typeof this.options.when === 'function') {
+    return this.options.when.apply(this, arguments);
   }
   return true;
 };
@@ -261,11 +262,17 @@ Prompt.prototype.when = function() {
 Prompt.prototype.ask = function(callback) {
   this.callback = callback.bind(this);
   this.rl.line = '';
+
   this.resume();
   this.only('keypress', this.onKeypress.bind(this));
   this.only('error', this.onError.bind(this));
   this.only('line', this.onSubmit.bind(this));
   this.emit('ask', this);
+
+  if (this.choices && this.choices.length) {
+    utils.cursorHide(this.rl);
+  }
+
   this.render();
 };
 
@@ -335,22 +342,56 @@ Prompt.prototype.run = function(answers) {
  */
 
 Prompt.prototype.render = function(state) {
-  if (state === false) {
-    state = this.errorMessage;
-  }
-
-  var append = typeof state === 'string'
-    ? log.red('>> ') + state
-    : '';
-
   var message = this.message;
-  if (this.status === 'answered') {
-    message += log.cyan(this.answer);
-  } else {
-    message += this.rl.line;
+  var append = this.renderError(state);
+
+  switch (this.status) {
+    case 'pending':
+      message += this.renderHelp();
+      message += this.renderOutput();
+      break;
+    case 'answered':
+      message += this.renderAnswer();
+      break;
+    case 'rendered':
+    default: {
+      message += this.renderOutput();
+      break;
+    }
   }
 
   this.ui.render(message, append);
+};
+
+Prompt.prototype.renderError = function(state) {
+  if (state === false) {
+    return this.options.errorMessage || this.errorMessage;
+  }
+  if (typeof state === 'string') {
+    return log.red('>> ') + state;
+  }
+  return '';
+};
+
+Prompt.prototype.renderHelp = function() {
+  this.status = 'rendered';
+  var message = this.options.helpMessage || this.helpMessage || '';
+  if (!message && this.question.default != null) {
+    message = log.dim('(' + this.question.default + ') ');
+  }
+  return message;
+};
+
+Prompt.prototype.renderAnswer = function() {
+  return log.cyan(this.mask(this.answer));
+};
+
+Prompt.prototype.renderOutput = function() {
+  return this.mask(this.rl.line);
+};
+
+Prompt.prototype.mask = function(input) {
+  return input;
 };
 
 /**
@@ -361,7 +402,7 @@ Prompt.prototype.render = function(state) {
  * @param {Object} `event`
  */
 
-Prompt.prototype.action = function(state, str, key) {
+Prompt.prototype.action = function(state, input, key) {
   this.position = this.position || 0;
 
   switch (key && key.name) {
@@ -398,17 +439,7 @@ Prompt.prototype.action = function(state, str, key) {
  */
 
 Prompt.prototype.dispatch = function(method) {
-  return this.choices.action(method, this.position, this.options.radio);
-};
-
-/**
- * Default `return` event handler. This may be overridden in custom prompts.
- * @param {Object} `event`
- * @api public
- */
-
-Prompt.prototype.onEnterKey = function(str, key) {
-  // do nothing, by default this is handled by "line"
+  return this.actions[method](this.position, this.options.radio);
 };
 
 /**
@@ -436,11 +467,11 @@ Prompt.prototype.onError = function(err) {
  * @api public
  */
 
-Prompt.prototype.onKeypress = function(str, key) {
+Prompt.prototype.onKeypress = function(input, key) {
   var self = this;
-  Promise.resolve(this.validate(str, key))
+  Promise.resolve(this.validate(input, key))
     .then(function(state) {
-      self.action(state, str, key);
+      self.action(state, input, key);
     })
     .catch(this.onError.bind(this));
 };
@@ -455,7 +486,7 @@ Prompt.prototype.onKeypress = function(str, key) {
 Prompt.prototype.onSubmit = function(input) {
   var answer = this.answer = this.getAnswer(input);
   var self = this;
-  Promise.resolve(this.validate(answer))
+  Promise.resolve(this.validate(answer, {name: 'line'}))
     .then(function(state) {
       if (state === true) {
         self.submitAnswer(answer);
@@ -472,7 +503,7 @@ Prompt.prototype.onSubmit = function(input) {
  * @api public
  */
 
-Prompt.prototype.onTabKey = function(str, key) {
+Prompt.prototype.onTabKey = function(input, key) {
   // do nothing
 };
 
@@ -621,8 +652,8 @@ Object.defineProperty(Prompt.prototype, 'message', {
  */
 
 Object.defineProperty(Prompt.prototype, 'prefix', {
-  set: function(str) {
-    this.question.prefix = str;
+  set: function(input) {
+    this.question.prefix = input;
   },
   get: function() {
     return this.question.prefix || (log.cyan('?') + ' ');
