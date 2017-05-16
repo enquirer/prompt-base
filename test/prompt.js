@@ -34,7 +34,7 @@ describe('prompt-base', function() {
   it('should throw an error when question.name is not a string', function() {
     assert.throws(function() {
       Prompt({});
-    }, /expected name to be a string/);
+    }, /expected name to be a non-empty string/);
   });
 
   it('should expose readline-ui on prompt.ui', function() {

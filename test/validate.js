@@ -21,7 +21,7 @@ describe('.validate', function() {
   it('should validate an answer', function(cb) {
     var count = 0;
 
-    prompt.question.validate = function(val) {
+    prompt.options.validate = function(val) {
       switch (val) {
         case 'foo':
           count++;
@@ -53,7 +53,7 @@ describe('.validate', function() {
   it('should validate an answer with a promise', function(cb) {
     var count = 0;
 
-    prompt.question.validate = function(val) {
+    prompt.options.validate = function(val) {
       return new Promise(function(resolve) {
         switch (val) {
           case 'foo':
@@ -87,7 +87,8 @@ describe('.validate', function() {
   it('should return a validation "error" message', function(cb) {
     var count = 0;
     var restore = capture(prompt.rl.output);
-    prompt.question.validate = function(val) {
+    prompt.options.errorMessage = '>> wrong answer!';
+    prompt.options.validate = function(val) {
       switch (val) {
         case 'foo':
           count++;

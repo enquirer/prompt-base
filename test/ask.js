@@ -49,6 +49,39 @@ describe('.ask', function() {
     prompt.rl.input.emit('keypress', 'foo\n');
   });
 
+  it('should emit answer', function(cb) {
+    var count = 0;
+    prompt.only('keypress', function() {
+      count++;
+    });
+
+    prompt.on('answer', function(answer) {
+      assert.deepEqual(answer, 'foo');
+      assert.equal(count, 4);
+      cb();
+    });
+
+    prompt.ask(function(answer) {
+    });
+
+    prompt.rl.input.emit('keypress', 'foo\n');
+  });
+
+  it('should set propmt.answer', function(cb) {
+    var count = 0;
+    prompt.only('keypress', function() {
+      count++;
+    });
+
+    prompt.ask(function(answer) {
+      assert.deepEqual(prompt.answer, 'foo');
+      assert.equal(count, 4);
+      cb();
+    });
+
+    prompt.rl.input.emit('keypress', 'foo\n');
+  });
+
   it('should return an input answer as a string', function(cb) {
     prompt.ask(function(answer) {
       assert.equal(typeof answer, 'string');
