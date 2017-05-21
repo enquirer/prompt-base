@@ -10,17 +10,17 @@ Install with [npm](https://www.npmjs.com/):
 $ npm install --save prompt-base
 ```
 
+* no message (uses `${name}?` as message)
+* options.default (string, array)
+* options.when
+
 ## Release history
 
 See [the changlog](changelog.md) for details.
 
 ## What is this?
 
-prompt-base is a node.js library for creating command line prompts. You can use prompt-base directly for [simple input prompts](#simple input prompts), or as a "base" for creating [custom prompts](#custom prompts) that
-
-```js
-var prompt = require('prompt-base')('What is your favorite color?');
-```
+prompt-base is a node.js library for creating command line prompts. You can use prompt-base directly for simple input prompts, or as a "base" for creating [custom prompts](#in-the-wild):
 
 ## Usage
 
@@ -45,6 +45,17 @@ prompt.ask(function(answer) {
   console.log(answer);
   //=> 'blue'
 });
+```
+
+You can also pass a string directly to the main export:
+
+```js
+var prompt = require('prompt-base')('What is your favorite color?');
+  
+prompt.run()
+  .then(function(answer) {
+    console.log(answer);
+  })
 ```
 
 ## Custom prompts
@@ -466,7 +477,7 @@ Please read the [contributing guide](.github/contributing.md) for advice on open
 
 | **Commits** | **Contributor** | 
 | --- | --- |
-| 83 | [jonschlinkert](https://github.com/jonschlinkert) |
+| 93 | [jonschlinkert](https://github.com/jonschlinkert) |
 | 6 | [doowb](https://github.com/doowb) |
 
 ### Building docs
