@@ -6,7 +6,7 @@ var Prompt = require('..');
 var prompt;
 var unmute;
 
-describe('.actions', function() {
+describe.skip('.actions', function() {
   beforeEach(function() {
     prompt = new Prompt({name: 'fixture'});
     unmute = prompt.mute();
@@ -90,7 +90,7 @@ describe('.actions', function() {
     prompt.rl.input.emit('keypress', '\n');
   });
 
-  it('should call prompt.radio on "number" keypress events', function(cb) {
+  it('should call prompt.choices.radio on "number" keypress events', function(cb) {
     var events = [];
 
     prompt.choices = ['foo', 'bar', 'baz'];
@@ -155,13 +155,21 @@ describe('.actions', function() {
   });
 
   it('should dispatch an action for a "down" event', function(cb) {
-    prompt.choices = ['foo', 'bar', 'baz'];
+    var events = [];
+
+    prompt = new Prompt({name: 'down', choices: ['foo', 'bar', 'baz']});
+    prompt.only('keypress', function(name) {
+      events.push(name);
+    });
 
     prompt.ask(function(answer) {
-      assert.deepEqual(answer, ['bar']);
+      assert.equal(events.length, 4);
+      assert.deepEqual(events, ['space', 'down', 'space', 'enter']);
+      assert.deepEqual(answer, ['foo', 'bar']);
       cb();
     });
 
+    prompt.rl.input.emit('keypress', ' ');
     prompt.rl.input.emit('keypress', 'n', {name: 'down', ctrl: true});
     prompt.rl.input.emit('keypress', ' ');
     prompt.rl.input.emit('keypress', '\n');
@@ -203,7 +211,7 @@ describe('.actions', function() {
     prompt.rl.input.emit('keypress', '\n');
   });
 
-  it('should toggle choices with "a" keypress events (1)', function(cb) {
+  it('should check all choices on "a" keypress events', function(cb) {
     prompt.choices = ['foo', 'bar', 'baz'];
     prompt.ask(function(answer) {
       assert.deepEqual(answer, ['foo', 'bar', 'baz']);
@@ -214,7 +222,7 @@ describe('.actions', function() {
     prompt.rl.input.emit('keypress', '\n');
   });
 
-  it('should toggle choices with "a" keypress events (2)', function(cb) {
+  it('should uncheck all choices after two "a" keypress events', function(cb) {
     prompt.choices = ['foo', 'bar', 'baz'];
     prompt.ask(function(answer) {
       assert.deepEqual(answer, []);
@@ -226,29 +234,29 @@ describe('.actions', function() {
     prompt.rl.input.emit('keypress', '\n');
   });
 
-  it('should toggle choices with "a" keypress events (3)', function(cb) {
+  it('should check all choices when an item is already checked', function(cb) {
     prompt.choices = ['foo', 'bar', 'baz'];
     prompt.ask(function(answer) {
       assert.deepEqual(answer, ['foo', 'bar', 'baz']);
       cb();
     });
 
-    prompt.rl.input.emit('keypress', 'a');
-    prompt.rl.input.emit('keypress', 'a');
+    prompt.rl.input.emit('keypress', ' ');
     prompt.rl.input.emit('keypress', 'a');
     prompt.rl.input.emit('keypress', '\n');
   });
 
-  it('should toggle choices with "a" keypress events (4)', function(cb) {
+  it('should check all choices when items are already checked', function(cb) {
     prompt.choices = ['foo', 'bar', 'baz'];
+
     prompt.ask(function(answer) {
-      assert.deepEqual(answer, ['bar', 'baz']);
+      assert.deepEqual(answer, ['foo', 'bar', 'baz']);
       cb();
     });
 
     prompt.rl.input.emit('keypress', ' ');
-    prompt.rl.input.emit('keypress', 'a');
-    prompt.rl.input.emit('keypress', 'a');
+    prompt.rl.input.emit('keypress', null, {name: 'down'});
+    prompt.rl.input.emit('keypress', ' ');
     prompt.rl.input.emit('keypress', 'a');
     prompt.rl.input.emit('keypress', '\n');
   });
@@ -258,11 +266,11 @@ describe('.actions', function() {
     var events = [];
 
     prompt.choices = ['a', 'b', 'c'];
-    var dispatch = prompt.dispatch.bind(prompt);
+    var action = prompt.action.bind(prompt);
 
-    prompt.dispatch = function(key) {
+    prompt.action = function(key) {
       actions.push(key);
-      return dispatch.apply(null, arguments);
+      return action.apply(null, arguments);
     };
 
     prompt.only('keypress', function(name) {
@@ -272,8 +280,9 @@ describe('.actions', function() {
     prompt.ask(function(answer) {
       assert.deepEqual(answer, ['a', 'b', 'c']);
 
-      assert.equal(actions.length, 1);
+      assert.equal(actions.length, 2);
       assert.equal(actions[0], 'a');
+      assert.equal(actions[1], 'line');
 
       assert.equal(events.length, 2);
       assert.equal(events[0], 'a');
@@ -304,6 +313,7 @@ describe('.actions', function() {
   });
 
   it('should handle "up" keypress events', function(cb) {
+    prompt = new Prompt({name: 'up', choices: ['foo', 'bar', 'baz']});
     var events = [];
 
     prompt.only('keypress', function(name) {
@@ -311,13 +321,19 @@ describe('.actions', function() {
     });
 
     prompt.ask(function() {
-      assert.equal(events.length, 2);
-      assert.equal(events[0], 'up');
-      assert.equal(events[1], 'enter');
+      assert.equal(events.length, 7);
+      assert.deepEqual(prompt.choices.checked, ['bar']);
+      assert.deepEqual(events, ['down', 'down', 'down', 'up', 'up', 'space', 'enter']);
       cb();
     });
 
+    prompt.rl.input.emit('keypress', 'n', {ctrl: true});
+    prompt.rl.input.emit('keypress', 'n', {ctrl: true});
+    prompt.rl.input.emit('keypress', 'n', {ctrl: true});
+
     prompt.rl.input.emit('keypress', 'p', {ctrl: true});
+    prompt.rl.input.emit('keypress', 'p', {ctrl: true});
+    prompt.rl.input.emit('keypress', ' ');
     prompt.rl.input.emit('keypress', '\n');
   });
 
@@ -339,7 +355,7 @@ describe('.actions', function() {
     prompt.rl.input.emit('keypress', '\n');
   });
 
-  it('should call "move" on "down" keypress events', function(cb) {
+  it('should handle "down" keypress events', function(cb) {
     var events = [];
     prompt.choices = ['foo', 'bar', 'baz'];
     prompt.only('keypress', function(name) {
@@ -357,7 +373,7 @@ describe('.actions', function() {
     prompt.rl.input.emit('keypress', '\n');
   });
 
-  it('should call "move" on "down" keypress events', function(cb) {
+  it('should handle "number" keypress events', function(cb) {
     var events = [];
     prompt.choices = ['foo', 'bar', 'baz'];
     assert.equal(prompt.position, 0);

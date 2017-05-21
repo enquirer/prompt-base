@@ -25,4 +25,6 @@ vendor
 temp
 tmp
 TODO.md
-docs
+
+examples/*/dist
+examples/*/site

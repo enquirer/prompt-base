@@ -84,10 +84,9 @@ describe('.validate', function() {
     prompt.rl.emit('line', 'foo');
   });
 
-  it('should return a validation "error" message', function(cb) {
+  it('should use a custom validation "error" message', function(cb) {
     var count = 0;
     var restore = capture(prompt.rl.output);
-    prompt.options.errorMessage = '>> wrong answer!';
     prompt.options.validate = function(val) {
       switch (val) {
         case 'foo':
@@ -97,7 +96,7 @@ describe('.validate', function() {
         case 'bar':
           count++;
           prompt.rl.emit('line', 'baz');
-          return false;
+          return 'wrong answer!';
         default: {
           count++;
           return true;
@@ -107,8 +106,8 @@ describe('.validate', function() {
 
     prompt.run()
       .then(function(answer) {
-        var output = strip(restore(true)).split('\n').pop();
-        assert.deepEqual(output, '>> wrong answer!');
+        var output = strip(restore(true));
+        assert.equal(output.match(/>> wrong answer!/g).length, 2);
         assert.deepEqual(answer, 'baz');
         assert.equal(count, 3);
         unmute();

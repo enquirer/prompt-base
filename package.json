@@ -1,6 +1,6 @@
 {
   "name": "prompt-base",
-  "description": "Base prompt module used for creating custom prompt types for Enquirer.",
+  "description": "Base prompt module used for creating custom prompts.",
   "version": "0.8.2",
   "homepage": "https://github.com/enquirer/prompt-base",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
@@ -24,13 +24,14 @@
     "test": "mocha"
   },
   "dependencies": {
-    "base": "^0.13.0",
-    "debug": "^2.6.6",
-    "define-property": "^1.0.0",
+    "component-emitter": "^1.2.1",
+    "debug": "^2.6.8",
     "log-utils": "^0.2.1",
-    "prompt-question": "^2.0.1",
-    "readline-ui": "^2.1.0",
-    "readline-utils": "^2.1.2"
+    "prompt-actions": "^1.1.1",
+    "prompt-question": "^2.1.0",
+    "readline-ui": "^2.2.1",
+    "readline-utils": "^2.2.1",
+    "static-extend": "^0.1.2"
   },
   "devDependencies": {
     "ansi-magenta": "^0.1.1",
@@ -40,7 +41,7 @@
     "gulp-format-md": "^0.1.12",
     "gulp-istanbul": "^1.1.1",
     "gulp-mocha": "^3.0.1",
-    "mocha": "^3.3.0",
+    "mocha": "^3.4.1",
     "repeat-string": "^1.6.1",
     "strip-color": "^0.1.0"
   },
@@ -104,6 +105,8 @@
     "reflinks": [
       "choices-separator",
       "enquirer",
+      "prompt-choices",
+      "prompt-password",
       "prompt-question",
       "readline-ui",
       "readline-utils"
