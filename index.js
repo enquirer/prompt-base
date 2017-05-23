@@ -304,6 +304,13 @@ Prompt.prototype.render = function(state) {
   var append = this.renderError(state);
   var message = this.message;
 
+  this.emit('render', {
+    state: state,
+    message: this.message,
+    status: this.status,
+    append: append
+  });
+
   switch (this.status) {
     case 'help':
     case 'pending':
