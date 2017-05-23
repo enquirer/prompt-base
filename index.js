@@ -75,31 +75,6 @@ util.inherits(Prompt, Emitter);
 Prompt.extend = extend(Prompt);
 
 /**
- * Initialize event listeners
- */
-
-Prompt.prototype.initListeners = function() {
-  var prompt = this;
-  var on = {};
-
-  // allow events to be defined using `question.on`. this is
-  // defined as a setter/getter to allow events to be lazily
-  // added after instantiation
-  Object.defineProperty(this.question, 'on', {
-    set: function(val) {
-      on = val;
-      var keys = Object.keys(on);
-      for (var i = 0; i < keys.length; i++) {
-        prompt.only(keys[i], on[keys[i]].bind(prompt));
-      }
-    },
-    get: function() {
-      return on;
-    }
-  });
-};
-
-/**
  * Format the prompt message.
  *
  * ```js
@@ -166,7 +141,12 @@ Prompt.prototype.transform = function(answer) {
  *   message: 'What is your name?',
  *   errorMessage: 'alphabetical characters only',
  *   validate: function(input) {
- *     return input && !/^[a-z]+$/i.test(input);
+ *     var str = input ? input.trim() : '';
+ *     var isValid = /^[a-z]+$/i.test(str);
+ *     if (this.state === 'submitted') {
+ *       return str.length > 10 && isValid;
+ *     }
+ *     return isValid;
  *   }
  * });
  * ```
@@ -179,6 +159,9 @@ Prompt.prototype.validate = function(input, key) {
     this.state = this.options.validate.apply(this, arguments);
   } else {
     this.state = true;
+  }
+  if (this.status === 'submitted') {
+    this.question.default = '';
   }
   return this.state;
 };
@@ -193,7 +176,7 @@ Prompt.prototype.validate = function(input, key) {
  * var prompt = new Prompt({
  *   name: 'name',
  *   message: 'What is your name?',
- *   when: function() {
+ *   when: function(answers) {
  *     return !answers.name;
  *   }
  * });
@@ -202,7 +185,7 @@ Prompt.prototype.validate = function(input, key) {
  * @api public
  */
 
-Prompt.prototype.when = function() {
+Prompt.prototype.when = function(answers) {
   if (typeof this.options.when === 'function') {
     return this.options.when.apply(this, arguments);
   }
@@ -229,8 +212,11 @@ Prompt.prototype.when = function() {
  */
 
 Prompt.prototype.ask = function(callback) {
-  this.callback = callback;
+  if (this.question.on) {
+    this.addListeners(this.question.on);
+  }
 
+  this.callback = callback;
   this.resume();
   this.only('error', this.onError);
   this.only('keypress', this.dispatch.bind(this));
@@ -461,6 +447,10 @@ Prompt.prototype.dispatch = function(input, key) {
   // don't handle "enter" and "return" (handle by "line")
   if (key.name === 'enter' || key.name === 'return') {
     return;
+  }
+
+  if (key.name === 'line') {
+    this.status = 'submitted';
   }
 
   // on "shift+up" and "shift+down", add or remove
@@ -737,6 +727,39 @@ Prompt.Choices = Question.Choices;
  */
 
 Prompt.Separator = Question.Separator;
+
+/**
+ * Initialize event listeners
+ */
+
+Prompt.prototype.initListeners = function() {
+  var prompt = this;
+  var on = {};
+
+  // allow events to be defined using `question.on`. this is
+  // defined as a setter/getter to allow events to be lazily
+  // added after instantiation
+  Object.defineProperty(this.question, 'on', {
+    set: function(listeners) {
+      prompt.addListeners(listeners);
+      on = listeners;
+    },
+    get: function() {
+      return on;
+    }
+  });
+};
+
+/**
+ * Add an object of event listeners
+ */
+
+Prompt.prototype.addListeners = function(listeners) {
+  var keys = Object.keys(listeners);
+  for (var i = 0; i < keys.length; i++) {
+    this.only(keys[i], listeners[keys[i]].bind(this));
+  }
+};
 
 /**
  * Expose `Prompt`

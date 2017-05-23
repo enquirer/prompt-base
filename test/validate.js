@@ -1,6 +1,7 @@
 'use strict';
 
 require('mocha');
+var isTravis = process.env.CI || process.env.TRAVIS;
 var strip = require('strip-color');
 var capture = require('capture-stream');
 var assert = require('assert');
@@ -85,6 +86,11 @@ describe('.validate', function() {
   });
 
   it('should use a custom validation "error" message', function(cb) {
+    if (isTravis) {
+      this.skip();
+      return;
+    }
+
     var count = 0;
     var restore = capture(prompt.rl.output);
     prompt.options.validate = function(val) {

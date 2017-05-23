@@ -6,7 +6,7 @@ var Prompt = require('..');
 var prompt;
 var unmute;
 
-describe.skip('.actions', function() {
+describe('.actions', function() {
   beforeEach(function() {
     prompt = new Prompt({name: 'fixture'});
     unmute = prompt.mute();
