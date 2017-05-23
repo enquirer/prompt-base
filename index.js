@@ -623,6 +623,39 @@ Prompt.prototype.resume = function() {
 };
 
 /**
+ * Initialize event listeners
+ */
+
+Prompt.prototype.initListeners = function() {
+  var prompt = this;
+  var on = {};
+
+  // allow events to be defined using `question.on`. this is
+  // defined as a setter/getter to allow events to be lazily
+  // added after instantiation
+  Object.defineProperty(this.question, 'on', {
+    set: function(listeners) {
+      prompt.addListeners(listeners);
+      on = listeners;
+    },
+    get: function() {
+      return on;
+    }
+  });
+};
+
+/**
+ * Add an object of event listeners
+ */
+
+Prompt.prototype.addListeners = function(listeners) {
+  var keys = Object.keys(listeners);
+  for (var i = 0; i < keys.length; i++) {
+    this.only(keys[i], listeners[keys[i]].bind(this));
+  }
+};
+
+/**
  * Getter for getting the choices array from the question.
  *
  * @name .choices
@@ -690,7 +723,9 @@ Object.defineProperty(Prompt.prototype, 'actions', {
     this._actions.choices = this.choices;
   },
   get: function() {
-    this._actions = new Actions(this.choices);
+    if (!this._actions) {
+      this._actions = new Actions(this.choices);
+    }
     return this._actions;
   }
 });
@@ -734,39 +769,6 @@ Prompt.Choices = Question.Choices;
  */
 
 Prompt.Separator = Question.Separator;
-
-/**
- * Initialize event listeners
- */
-
-Prompt.prototype.initListeners = function() {
-  var prompt = this;
-  var on = {};
-
-  // allow events to be defined using `question.on`. this is
-  // defined as a setter/getter to allow events to be lazily
-  // added after instantiation
-  Object.defineProperty(this.question, 'on', {
-    set: function(listeners) {
-      prompt.addListeners(listeners);
-      on = listeners;
-    },
-    get: function() {
-      return on;
-    }
-  });
-};
-
-/**
- * Add an object of event listeners
- */
-
-Prompt.prototype.addListeners = function(listeners) {
-  var keys = Object.keys(listeners);
-  for (var i = 0; i < keys.length; i++) {
-    this.only(keys[i], listeners[keys[i]].bind(this));
-  }
-};
 
 /**
  * Expose `Prompt`
