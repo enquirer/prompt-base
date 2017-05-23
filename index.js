@@ -48,6 +48,7 @@ function Prompt(question, answers, ui) {
   this.question = this.options = new Question(question);
   this.initialDefault = this.question.default;
   this.answers = answers || {};
+  this.actions = new Actions(this);
 
   if (typeof this.options.limit !== 'number') {
     this.options.limit = this.options.radio ? 9 : 7;
@@ -708,25 +709,6 @@ Object.defineProperty(Prompt.prototype, 'prefix', {
   },
   get: function() {
     return this.question.prefix || (log.cyan('?') + ' ');
-  }
-});
-
-/**
- * Getter/setter to lazily instantiate prompt-actions, so that
- * all choices are available and the pointer position is correct.
- * @return {Object} Instance of prompt-actions
- */
-
-Object.defineProperty(Prompt.prototype, 'actions', {
-  set: function(actions) {
-    this._actions = actions;
-    this._actions.choices = this.choices;
-  },
-  get: function() {
-    if (!this._actions) {
-      this._actions = new Actions(this.choices);
-    }
-    return this._actions;
   }
 });
 
