@@ -3,9 +3,10 @@
 var util = require('util');
 var log = require('log-utils');
 var extend = require('static-extend');
+var utils = require('readline-utils');
 var Emitter = require('component-emitter');
 var debug = require('debug')('prompt-base');
-var utils = require('readline-utils');
+var isNumber = require('is-number');
 var Question = require('prompt-question');
 var Actions = require('prompt-actions');
 var UI = require('readline-ui');
@@ -58,7 +59,7 @@ function Prompt(question, answers, ui) {
   this.rl = this.ui.rl;
   this.errorMessage = log.red('>> invalid input');
   this.onError = this.onError.bind(this);
-  this.answer = this.getAnswer();
+  // this.answer = this.getAnswer();
   this.status = 'pending';
   this.session = false;
   this.position = 0;
@@ -373,8 +374,9 @@ Prompt.prototype.renderError = function(valid) {
 Prompt.prototype.renderHelp = function() {
   this.status = 'interacted';
   var message = this.options.helpMessage || this.helpMessage || '';
-  if (!message && this.question.default != null) {
-    message = log.dim('(' + this.question.default + ') ');
+  var val = this.getDefault();
+  if (!message && val != null) {
+    message = log.dim('(' + val + ') ');
   }
   return message;
 };
@@ -483,7 +485,7 @@ Prompt.prototype.dispatch = function(input, key) {
 
       // handle the "enter" keypress event
       if (key.name === 'line' && state === true) {
-        return self.submitAnswer((self.answer = answer));
+        return self.submitAnswer(answer);
       }
 
       // dispatch actions, if one matches a keypress
@@ -520,8 +522,23 @@ Prompt.prototype.onError = function(err) {
  * @api public
  */
 
+Prompt.prototype.getDefault = function() {
+  if (this.choices && this.choices.length && isNumber(this.question.default)) {
+    var choice = this.choices.get(this.question.default);
+    this.position = this.choices.items.indexOf(choice);
+    this.question.default = choice.name;
+  }
+  return this.question.default;
+};
+
+/**
+ * Get the answer to use. This can be overridden in custom prompts.
+ * @api public
+ */
+
 Prompt.prototype.getAnswer = function(input) {
-  return this.question.getAnswer(input || this.question.default);
+  this.answer = this.question.getAnswer(input || this.getDefault());
+  return this.answer;
 };
 
 /**
