@@ -1,7 +1,7 @@
 {
   "name": "prompt-base",
   "description": "Base prompt module used for creating custom prompts.",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "homepage": "https://github.com/enquirer/prompt-base",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "contributors": [
