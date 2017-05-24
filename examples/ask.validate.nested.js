@@ -56,8 +56,6 @@ foo.run(answers)
             answers[baz.question.name] = answer;
             console.log(answer);
             console.log(answers);
-
-            baz.close();
           });
       });
   })

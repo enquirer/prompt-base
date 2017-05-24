@@ -51,8 +51,6 @@ foo.run(answers)
           .then(function(answer) {
             console.log(answer);
             console.log(answers);
-
-            baz.close();
           });
       });
   })
