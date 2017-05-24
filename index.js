@@ -59,7 +59,6 @@ function Prompt(question, answers, ui) {
   this.rl = this.ui.rl;
   this.errorMessage = log.red('>> invalid input');
   this.onError = this.onError.bind(this);
-  // this.answer = this.getAnswer();
   this.status = 'pending';
   this.session = false;
   this.position = 0;
@@ -75,28 +74,6 @@ function Prompt(question, answers, ui) {
 
 util.inherits(Prompt, Emitter);
 Prompt.extend = extend(Prompt);
-
-/**
- * Format the prompt message.
- *
- * ```js
- * var answers = {};
- * var Prompt = require('prompt-base');
- * var prompt = new Prompt({
- *   name: 'name',
- *   message: 'What is your name?',
- *   transform: function(input) {
- *     return input.toUpperCase();
- *   }
- * });
- * ```
- * @return {String}
- * @api public
- */
-
-Prompt.prototype.format = function(msg) {
-  return this.prefix + log.bold(msg) + ' ';
-};
 
 /**
  * Modify the answer value before it's returned. Must
@@ -117,15 +94,14 @@ Prompt.prototype.format = function(msg) {
  * @api public
  */
 
-Prompt.prototype.transform = function(answer) {
-  answer = this.getAnswer(answer);
+Prompt.prototype.transform = function(input) {
   if (typeof this.options.transform === 'function') {
-    return this.options.transform.call(this, answer);
+    return this.options.transform.call(this, input);
   }
   if (typeof this.options.filter === 'function') {
-    return this.options.filter.call(this, answer);
+    return this.options.filter.call(this, input);
   }
-  return answer;
+  return input;
 };
 
 /**
@@ -304,14 +280,7 @@ Prompt.prototype.render = function(state) {
   }
 
   var append = this.renderError(state);
-  var message = this.message;
-
-  this.emit('render', {
-    state: state,
-    message: this.message,
-    status: this.status,
-    append: append
-  });
+  var message = this.renderMessage();
 
   switch (this.status) {
     case 'help':
@@ -324,37 +293,44 @@ Prompt.prototype.render = function(state) {
       message += this.renderAnswer();
       break;
     case 'interacted':
+    case 'submitted':
     default: {
       message += this.renderOutput();
       break;
     }
   }
 
-  this.ui.render(message, append);
+  var render = {
+    state: state,
+    message: message,
+    status: this.status,
+    append: append
+  };
+
+  this.emit('render', render);
+  this.ui.render(render.message, render.append);
 };
 
 /**
- * Render an error message in the prompt, when `valid` is
- * false or a string. This is used when a validation method
- * either returns `false`, indicating that the input
- * was invalid, or the method returns a string, indicating
- * that a custom error message should be rendered. A custom
- * error message may also be defined on `options.errorMessage`.
+ * Format the prompt message.
  *
- * @default `>> invalid input`
- * @param {boolean|string|undefined} `valid`
+ * ```js
+ * var answers = {};
+ * var Prompt = require('prompt-base');
+ * var prompt = new Prompt({
+ *   name: 'name',
+ *   message: 'What is your name?',
+ *   transform: function(input) {
+ *     return input.toUpperCase();
+ *   }
+ * });
+ * ```
  * @return {String}
  * @api public
  */
 
-Prompt.prototype.renderError = function(valid) {
-  if (valid === false) {
-    return this.options.errorMessage || this.errorMessage;
-  }
-  if (typeof valid === 'string') {
-    return log.red('>> ') + valid;
-  }
-  return '';
+Prompt.prototype.renderMessage = function() {
+  return this.prefix + log.bold(this.message) + ' ';
 };
 
 /**
@@ -379,6 +355,30 @@ Prompt.prototype.renderHelp = function() {
     message = log.dim('(' + val + ') ');
   }
   return message;
+};
+
+/**
+ * Render an error message in the prompt, when `valid` is
+ * false or a string. This is used when a validation method
+ * either returns `false`, indicating that the input
+ * was invalid, or the method returns a string, indicating
+ * that a custom error message should be rendered. A custom
+ * error message may also be defined on `options.errorMessage`.
+ *
+ * @default `>> invalid input`
+ * @param {boolean|string|undefined} `valid`
+ * @return {String}
+ * @api public
+ */
+
+Prompt.prototype.renderError = function(valid) {
+  if (valid === false) {
+    return this.options.errorMessage || this.errorMessage;
+  }
+  if (typeof valid === 'string') {
+    return log.red('>> ') + valid;
+  }
+  return '';
 };
 
 /**
@@ -451,7 +451,6 @@ Prompt.prototype.action = function(name, fn) {
 
 Prompt.prototype.dispatch = function(input, key) {
   this.choices.position = this.position;
-  var answer = this.getAnswer(input);
   var self = this;
 
   // don't handle "enter" and "return" (handle by "line")
@@ -460,6 +459,7 @@ Prompt.prototype.dispatch = function(input, key) {
   }
 
   if (key.name === 'line') {
+    input = this.getAnswer(input, key);
     this.status = 'submitted';
   }
 
@@ -478,14 +478,15 @@ Prompt.prototype.dispatch = function(input, key) {
     return;
   }
 
-  Promise.resolve(this.validate(answer, key))
+  Promise.resolve(this.validate(input, key))
     .then(function(state) {
       var action = self.action(key.name);
       self.state = state;
 
       // handle the "enter" keypress event
       if (key.name === 'line' && state === true) {
-        return self.submitAnswer(answer);
+        self.render(state);
+        return self.submitAnswer(input);
       }
 
       // dispatch actions, if one matches a keypress
@@ -536,8 +537,8 @@ Prompt.prototype.getDefault = function() {
  * @api public
  */
 
-Prompt.prototype.getAnswer = function(input) {
-  this.answer = this.question.getAnswer(input || this.getDefault());
+Prompt.prototype.getAnswer = function(input, key) {
+  this.answer = this.question.getAnswer(input || this.getDefault(), key);
   return this.answer;
 };
 
@@ -547,14 +548,13 @@ Prompt.prototype.getAnswer = function(input) {
  * @api public
  */
 
-Prompt.prototype.submitAnswer = function(input) {
+Prompt.prototype.submitAnswer = function(answer) {
   setImmediate(function() {
     this.status = 'answered';
     this.end();
-    this.answer = this.getAnswer(input);
-    this.emit('answer', this.answer);
+    this.emit('answer', answer);
     this.rl.line = '';
-    this.callback(this.answer);
+    this.callback(answer);
   }.bind(this));
 };
 
@@ -703,7 +703,7 @@ Object.defineProperty(Prompt.prototype, 'message', {
     this.question.message = message;
   },
   get: function() {
-    return this.format(this.question.message);
+    return this.question.message;
   }
 });
 
