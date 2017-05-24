@@ -98,27 +98,7 @@ prompt.ask(function(answer) {
 });
 ```
 
-### [.format](index.js#L97)
-
-Format the prompt message.
-
-* `returns` **{String}**
-
-**Example**
-
-```js
-var answers = {};
-var Prompt = require('prompt-base');
-var prompt = new Prompt({
-  name: 'name',
-  message: 'What is your name?',
-  transform: function(input) {
-    return input.toUpperCase();
-  }
-});
-```
-
-### [.transform](index.js#L120)
+### [.transform](index.js#L97)
 
 Modify the answer value before it's returned. Must return a string or promise.
 
@@ -138,7 +118,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.validate](index.js#L159)
+### [.validate](index.js#L135)
 
 Validate user input on `keypress` events and the answer value when it's submitted by the `line` event (when the user hits <kbd>enter</kbd>. This may be overridden in custom prompts. If the function returns `false`, either `question.errorMessage` or the default validation error message (`invalid input`) is used. Must return a boolean, string or promise.
 
@@ -163,7 +143,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.when](index.js#L190)
+### [.when](index.js#L166)
 
 A custom `.when` function may be defined to determine
 whether or not a question should be asked at all. Must
@@ -185,7 +165,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.ask](index.js#L216)
+### [.ask](index.js#L192)
 
 Run the prompt with the given `callback` function.
 
@@ -208,7 +188,7 @@ prompt.ask(function(answer) {
 });
 ```
 
-### [.run](index.js#L257)
+### [.run](index.js#L233)
 
 Run the prompt and resolve answers. If [when](#when) is defined and returns false, the prompt will be skipped.
 
@@ -234,7 +214,7 @@ prompt.run(answers)
   });
 ```
 
-### [.render](index.js#L301)
+### [.render](index.js#L277)
 
 (Re-)render the prompt message, along with any help or error messages, user input, choices, list items, and so on. This is called to render the initial prompt, then it's called again each time the prompt changes, such as on keypress events (when the user enters input, or a multiple-choice option is selected). This method may be overridden in custom prompts, but it's recommended that you override the more specific render "status" methods instead.
 
@@ -244,21 +224,27 @@ prompt.run(answers)
 prompt.ui.on('keypress', prompt.render.bind(prompt));
 ```
 
-### [.renderError](index.js#L350)
+### [.renderMessage](index.js#L332)
 
-Render an error message in the prompt, when `valid` is
-false or a string. This is used when a validation method
-either returns `false`, indicating that the input
-was invalid, or the method returns a string, indicating
-that a custom error message should be rendered. A custom
-error message may also be defined on `options.errorMessage`.
+Format the prompt message.
 
-**Params**
-
-* `valid` **{boolean|string|undefined}**
 * `returns` **{String}**
 
-### [.renderHelp](index.js#L374)
+**Example**
+
+```js
+var answers = {};
+var Prompt = require('prompt-base');
+var prompt = new Prompt({
+  name: 'name',
+  message: 'What is your name?',
+  transform: function(input) {
+    return input.toUpperCase();
+  }
+});
+```
+
+### [.renderHelp](index.js#L350)
 
 Called by [render](#render) to render a help message when the
 `prompt.status` is `initialized` or `help` (usually when the
@@ -267,6 +253,20 @@ prompt is first rendered). Calling this method changes the
 message is only displayed until the user interacts. By default
 the help message is positioned to the right of the prompt "question".
 A custom help message may be defined on `options.helpMessage`.
+
+**Params**
+
+* `valid` **{boolean|string|undefined}**
+* `returns` **{String}**
+
+### [.renderError](index.js#L374)
+
+Render an error message in the prompt, when `valid` is
+false or a string. This is used when a validation method
+either returns `false`, indicating that the input
+was invalid, or the method returns a string, indicating
+that a custom error message should be rendered. A custom
+error message may also be defined on `options.errorMessage`.
 
 **Params**
 
@@ -320,7 +320,7 @@ event is emitted.
 * `direction` **{String}**
 * `event` **{Object}**
 
-### [.onError](index.js#L510)
+### [.onError](index.js#L511)
 
 Default error event handler. If an `error` listener exist, an `error`
 event will be emitted, otherwise the error is logged onto `stderr` and
@@ -330,15 +330,15 @@ the process is exited. This can be overridden in custom prompts.
 
 * `err` **{Object}**
 
-### [.getDefault](index.js#L525)
+### [.getDefault](index.js#L526)
 
 Get the answer to use. This can be overridden in custom prompts.
 
-### [.getAnswer](index.js#L539)
+### [.getAnswer](index.js#L540)
 
 Get the answer to use. This can be overridden in custom prompts.
 
-### [.submitAnswer](index.js#L550)
+### [.submitAnswer](index.js#L551)
 
 Re-render and pass the final answer to the callback.
 This can be replaced by custom prompts.
@@ -537,7 +537,7 @@ Please read the [contributing guide](.github/contributing.md) for advice on open
 
 | **Commits** | **Contributor** | 
 | --- | --- |
-| 107 | [jonschlinkert](https://github.com/jonschlinkert) |
+| 110 | [jonschlinkert](https://github.com/jonschlinkert) |
 | 6 | [doowb](https://github.com/doowb) |
 
 ### Building docs
@@ -572,4 +572,4 @@ Released under the [MIT License](LICENSE).
 
 ***
 
-_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on May 23, 2017._
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on May 24, 2017._
