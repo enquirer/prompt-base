@@ -2,13 +2,13 @@
 
 var util = require('util');
 var log = require('log-utils');
-var extend = require('static-extend');
-var utils = require('readline-utils');
-var Emitter = require('component-emitter');
 var debug = require('debug')('prompt-base');
-var isNumber = require('is-number');
+var Emitter = require('component-emitter');
 var Question = require('prompt-question');
 var Actions = require('prompt-actions');
+var extend = require('static-extend');
+var utils = require('readline-utils');
+var isNumber = require('is-number');
 var UI = require('readline-ui');
 
 /**
@@ -465,7 +465,7 @@ Prompt.prototype.dispatch = function(input, key) {
 
   // on "shift+up" and "shift+down", add or remove
   // vertical lines to display more of the prompt
-  if (key.shift === true) {
+  if (this.options.expandHeight !== false && key.shift === true) {
     switch (key.name) {
       case 'up':
         this.options.limit--;
