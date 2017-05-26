@@ -450,6 +450,7 @@ Prompt.prototype.action = function(name, fn) {
  */
 
 Prompt.prototype.dispatch = function(input, key) {
+  this.keypress = key;
   this.choices.position = this.position;
   var self = this;
 
