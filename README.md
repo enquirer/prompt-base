@@ -98,7 +98,7 @@ prompt.ask(function(answer) {
 });
 ```
 
-### [.transform](index.js#L97)
+### [.transform](index.js#L96)
 
 Modify the answer value before it's returned. Must return a string or promise.
 
@@ -118,7 +118,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.validate](index.js#L135)
+### [.validate](index.js#L134)
 
 Validate user input on `keypress` events and the answer value when it's submitted by the `line` event (when the user hits <kbd>enter</kbd>. This may be overridden in custom prompts. If the function returns `false`, either `question.errorMessage` or the default validation error message (`invalid input`) is used. Must return a boolean, string or promise.
 
@@ -143,7 +143,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.when](index.js#L166)
+### [.when](index.js#L165)
 
 A custom `.when` function may be defined to determine
 whether or not a question should be asked at all. Must
@@ -165,7 +165,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.ask](index.js#L192)
+### [.ask](index.js#L191)
 
 Run the prompt with the given `callback` function.
 
@@ -188,7 +188,7 @@ prompt.ask(function(answer) {
 });
 ```
 
-### [.run](index.js#L233)
+### [.run](index.js#L232)
 
 Run the prompt and resolve answers. If [when](#when) is defined and returns false, the prompt will be skipped.
 
@@ -214,7 +214,7 @@ prompt.run(answers)
   });
 ```
 
-### [.render](index.js#L277)
+### [.render](index.js#L276)
 
 (Re-)render the prompt message, along with any help or error messages, user input, choices, list items, and so on. This is called to render the initial prompt, then it's called again each time the prompt changes, such as on keypress events (when the user enters input, or a multiple-choice option is selected). This method may be overridden in custom prompts, but it's recommended that you override the more specific render "status" methods instead.
 
@@ -320,7 +320,7 @@ event is emitted.
 * `direction` **{String}**
 * `event` **{Object}**
 
-### [.onError](index.js#L511)
+### [.onError](index.js#L512)
 
 Default error event handler. If an `error` listener exist, an `error`
 event will be emitted, otherwise the error is logged onto `stderr` and
@@ -330,20 +330,20 @@ the process is exited. This can be overridden in custom prompts.
 
 * `err` **{Object}**
 
-### [.getDefault](index.js#L526)
+### [.getDefault](index.js#L527)
 
 Get the answer to use. This can be overridden in custom prompts.
 
-### [.getAnswer](index.js#L540)
+### [.getAnswer](index.js#L541)
 
 Get the answer to use. This can be overridden in custom prompts.
 
-### [.submitAnswer](index.js#L551)
+### [.submitAnswer](index.js#L552)
 
 Re-render and pass the final answer to the callback.
 This can be replaced by custom prompts.
 
-### [.only](index.js#L574)
+### [.only](index.js#L575)
 
 Ensures that events for event `name` are only **registered** once and are disabled correctly when specified. This is different from `.once`, which only **emits** once.
 
@@ -355,7 +355,7 @@ prompt.only('keypress', function() {
 });
 ```
 
-### [.mute](index.js#L603)
+### [.mute](index.js#L604)
 
 Mutes the output stream that was used to create the readline interface, and returns a function for unmuting the stream. This is useful in unit tests.
 
@@ -371,31 +371,31 @@ var unmute = prompt.mute();
 unmute();
 ```
 
-### [.end](index.js#L623)
+### [.end](index.js#L624)
 
 Pause the readline and unmute the output stream that was
 used to create the readline interface, which is `process.stdout`
 by default.
 
-### [.resume](index.js#L638)
+### [.resume](index.js#L639)
 
 [Resume](https://nodejs.org/api/readline.html#readline_rl_resume) the readline input stream if it has been paused.
 
 * `returns` **{undefined}**
 
-### [.choices](index.js#L684)
+### [.choices](index.js#L685)
 
 Getter for getting the choices array from the question.
 
 * `returns` **{Object}**: Choices object
 
-### [.message](index.js#L701)
+### [.message](index.js#L702)
 
 Getter that returns `question.message` after passing it to [format](#format).
 
 * `returns` **{String}**: A formatted prompt message.
 
-### [.prefix](index.js#L723)
+### [.prefix](index.js#L724)
 
 Getter/setter that returns the prefix to use before `question.message`. The default value is a green `?`.
 
@@ -408,7 +408,52 @@ Getter/setter that returns the prefix to use before `question.message`. The defa
 prompt.prefix = ' ❤ ';
 ```
 
-### [.Question](index.js#L743)
+### [.ask](index.js#L753)
+
+Static convenience method for running the prompt asynchronously. Takes the same arguments as the contructror.
+
+**Params**
+
+* `question` **{Object}**: Plain object or instance of [prompt-question](https://github.com/enquirer/prompt-question).
+* `answers` **{Object}**: Optionally pass an answers object from a prompt manager (like [enquirer](https://github.com/enquirer/enquirer)).
+* `ui` **{Object}**: Optionally pass an instance of [readline-ui](https://github.com/enquirer/readline-ui). If not passed, an instance is created for you.
+* `callback` **{Function}**
+* `returns` **{undefined}**
+
+**Example**
+
+```js
+var prompt = require('prompt-base');
+var question = { name: 'color', message: 'What is your favorite color?' };
+prompt.ask(question, function(answer) {
+  console.log(answer);
+  //=> 'blue'
+});
+```
+
+### [.run](index.js#L779)
+
+Static convenience method for running the prompt. Takes the same arguments as the contructror.
+
+**Params**
+
+* `question` **{Object}**: Plain object or instance of [prompt-question](https://github.com/enquirer/prompt-question).
+* `answers` **{Object}**: Optionally pass an answers object from a prompt manager (like [enquirer](https://github.com/enquirer/enquirer)).
+* `ui` **{Object}**: Optionally pass an instance of [readline-ui](https://github.com/enquirer/readline-ui). If not passed, an instance is created for you.
+* `returns` **{Promise}**
+
+**Example**
+
+```js
+var prompt = require('prompt-base');
+prompt.run({ name: 'color', message: 'What is your favorite color?'})
+  .then(function(answer) {
+    console.log(answer);
+    //=> 'blue'
+  });
+```
+
+### [.Question](index.js#L795)
 
 Create a new `Question`. See [prompt-question](https://github.com/enquirer/prompt-question) for more details.
 
@@ -423,7 +468,7 @@ Create a new `Question`. See [prompt-question](https://github.com/enquirer/promp
 var question = new Prompt.Question({name: 'foo'});
 ```
 
-### [.Choices](index.js#L757)
+### [.Choices](index.js#L809)
 
 Create a new `Choices` object. See [prompt-choices](https://github.com/enquirer/prompt-choices) for more details.
 
@@ -438,7 +483,7 @@ Create a new `Choices` object. See [prompt-choices](https://github.com/enquirer/
 var choices = new Prompt.Choices(['foo', 'bar', 'baz']);
 ```
 
-### [.Separator](index.js#L770)
+### [.Separator](index.js#L822)
 
 Create a new `Separator` object. See [choices-separator](https://github.com/enquirer/choices-separator) for more details.
 
@@ -537,7 +582,7 @@ Please read the [contributing guide](.github/contributing.md) for advice on open
 
 | **Commits** | **Contributor** | 
 | --- | --- |
-| 114 | [jonschlinkert](https://github.com/jonschlinkert) |
+| 119 | [jonschlinkert](https://github.com/jonschlinkert) |
 | 6 | [doowb](https://github.com/doowb) |
 
 ### Building docs
@@ -572,4 +617,4 @@ Released under the [MIT License](LICENSE).
 
 ***
 
-_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on May 26, 2017._
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on May 27, 2017._
