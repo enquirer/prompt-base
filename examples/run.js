@@ -7,5 +7,5 @@ var prompt = new Prompt({
 
 prompt.run(answers)
   .then(function(answer) {
-    console.log(answer, answers);
+    console.log({color: answer}, answers);
   });
