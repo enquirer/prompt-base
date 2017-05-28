@@ -27,10 +27,11 @@
     "component-emitter": "^1.2.1",
     "debug": "^2.6.8",
     "is-number": "^3.0.0",
+    "koalas": "^1.0.2",
     "log-utils": "^0.2.1",
-    "prompt-actions": "^2.0.1",
-    "prompt-question": "^3.0.2",
-    "readline-ui": "^2.2.1",
+    "prompt-actions": "^3.0.1",
+    "prompt-question": "^4.0.0",
+    "readline-ui": "^2.2.2",
     "readline-utils": "^2.2.1",
     "static-extend": "^0.1.2"
   },
@@ -42,7 +43,7 @@
     "gulp-format-md": "^0.1.12",
     "gulp-istanbul": "^1.1.1",
     "gulp-mocha": "^3.0.1",
-    "mocha": "^3.4.1",
+    "mocha": "^3.4.2",
     "repeat-string": "^1.6.1",
     "strip-color": "^0.1.0"
   },
