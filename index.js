@@ -2,6 +2,7 @@
 
 var util = require('util');
 var log = require('log-utils');
+var koalas = require('koalas');
 var debug = require('debug')('prompt-base');
 var Emitter = require('component-emitter');
 var Question = require('prompt-question');
@@ -10,7 +11,6 @@ var extend = require('static-extend');
 var utils = require('readline-utils');
 var isNumber = require('is-number');
 var UI = require('readline-ui');
-var koalas = require('koalas');
 
 /**
  * Create a new Prompt with the given `question` object, `answers` and optional instance
@@ -51,6 +51,8 @@ function Prompt(question, answers, ui) {
   this.initialDefault = this.question.default;
   this.answers = answers || {};
   this.actions = new Actions(this);
+  this.contextHistory = [];
+  this.context = {};
 
   if (typeof this.options.limit !== 'number') {
     this.options.limit = this.options.radio ? 9 : 7;
@@ -138,9 +140,6 @@ Prompt.prototype.validate = function(input, key) {
     this.state = this.options.validate.apply(this, arguments);
   } else {
     this.state = true;
-  }
-  if (this.status === 'submitted') {
-    this.question.default = '';
   }
   return this.state;
 };
@@ -323,7 +322,7 @@ Prompt.prototype.render = function(state) {
   }
 
   this.state = state;
-  var context = {
+  var context = this.context = {
     options: this.options,
     status: this.status,
     state: this.state,
@@ -362,9 +361,12 @@ Prompt.prototype.render = function(state) {
     }
   }
 
+  // push context onto history array, for debugging
+  this.contextHistory.push(context);
+
   // override message in custom prompts
-  this.emit('render', context, this);
-  this.ui.render(context.header, context.message, context.append);
+  this.emit('render', context);
+  this.ui.render(context.message, context.append);
 };
 
 /**
