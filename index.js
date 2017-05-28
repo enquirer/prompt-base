@@ -73,7 +73,6 @@ function Prompt(question, answers, ui) {
  */
 
 util.inherits(Prompt, Emitter);
-Prompt.extend = extend(Prompt);
 
 /**
  * Modify the answer value before it's returned. Must
@@ -300,15 +299,16 @@ Prompt.prototype.render = function(state) {
     }
   }
 
-  var render = {
+  var context = {
     state: state,
-    message: message,
     status: this.status,
+    line: this.rl.line,
+    message: message,
     append: append
   };
 
-  this.emit('render', render);
-  this.ui.render(render.message, render.append);
+  this.emit('render', context);
+  this.ui.render(context.message, context.append);
 };
 
 /**
@@ -460,8 +460,8 @@ Prompt.prototype.dispatch = function(input, key) {
   }
 
   if (key.name === 'line') {
-    input = this.getAnswer(input, key);
     this.status = 'submitted';
+    input = this.getAnswer(input, key);
   }
 
   // on "shift+up" and "shift+down", add or remove
@@ -731,6 +731,57 @@ Object.defineProperty(Prompt.prototype, 'prefix', {
 });
 
 /**
+ * Static convenience method for running the prompt asynchronously.
+ * Takes the same arguments as the contructror.
+ *
+ * ```js
+ * var prompt = require('prompt-base');
+ * var question = { name: 'color', message: 'What is your favorite color?' };
+ * prompt.ask(question, function(answer) {
+ *   console.log(answer);
+ *   //=> 'blue'
+ * });
+ * ```
+ * @param {Object} `question` Plain object or instance of [prompt-question][].
+ * @param {Object} `answers` Optionally pass an answers object from a prompt manager (like [enquirer][]).
+ * @param {Object} `ui` Optionally pass an instance of [readline-ui][]. If not passed, an instance is created for you.
+ * @param {Function} `callback`
+ * @return {undefined}
+ * @api public
+ */
+
+Prompt.ask = function(question, answers, ui) {
+  var args = [].slice.call(arguments);
+  var cb = args.pop();
+  var prompt = new this(...args);
+  prompt.ask(cb);
+};
+
+/**
+ * Static convenience method for running the prompt.
+ * Takes the same arguments as the contructror.
+ *
+ * ```js
+ * var prompt = require('prompt-base');
+ * prompt.run({ name: 'color', message: 'What is your favorite color?'})
+ *   .then(function(answer) {
+ *     console.log(answer);
+ *     //=> 'blue'
+ *   });
+ * ```
+ * @param {Object} `question` Plain object or instance of [prompt-question][].
+ * @param {Object} `answers` Optionally pass an answers object from a prompt manager (like [enquirer][]).
+ * @param {Object} `ui` Optionally pass an instance of [readline-ui][]. If not passed, an instance is created for you.
+ * @return {Promise}
+ * @api public
+ */
+
+Prompt.run = function() {
+  var prompt = new this(...arguments);
+  return prompt.run();
+};
+
+/**
  * Create a new `Question`. See [prompt-question][] for more details.
  *
  * ```js
@@ -769,6 +820,14 @@ Prompt.Choices = Question.Choices;
  */
 
 Prompt.Separator = Question.Separator;
+
+/**
+ * Static method for inheriting `Prompt`. This ensures that all getters/setters,
+ * prototype methods, and static methods are inherited and invoked in the
+ * correct context.
+ */
+
+Prompt.extend = extend(Prompt);
 
 /**
  * Expose `Prompt`
