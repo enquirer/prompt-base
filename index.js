@@ -10,6 +10,7 @@ var extend = require('static-extend');
 var utils = require('readline-utils');
 var isNumber = require('is-number');
 var UI = require('readline-ui');
+var koalas = require('koalas');
 
 /**
  * Create a new Prompt with the given `question` object, `answers` and optional instance
@@ -55,6 +56,7 @@ function Prompt(question, answers, ui) {
     this.options.limit = this.options.radio ? 9 : 7;
   }
 
+  this.choices.options.limit = this.options.limit;
   this.ui = ui || UI.create(this.options);
   this.rl = this.ui.rl;
   this.errorMessage = log.red('>> invalid input');
@@ -258,6 +260,48 @@ Prompt.prototype.run = function(answers) {
 };
 
 /**
+ * Get the answer to use. This can be overridden in custom prompts.
+ * @api public
+ */
+
+Prompt.prototype.getDefault = function() {
+  if (this.choices && this.choices.length && isNumber(this.question.default)) {
+    var choice = this.choices.get(this.question.default);
+    this.position = this.choices.items.indexOf(choice);
+    this.question.default = choice.name;
+  }
+  return this.question.default;
+};
+
+/**
+ * Get the error message to use. This can be overridden in custom prompts.
+ * @api public
+ */
+
+Prompt.prototype.getError = function(input, key) {
+  return koalas(this.options.errorMessage, this.errorMessage, '');
+};
+
+/**
+ * Get the help message to use. This can be overridden in custom prompts.
+ * @api public
+ */
+
+Prompt.prototype.getHelp = function(input, key) {
+  return koalas(this.options.helpMessage, this.helpMessage, '');
+};
+
+/**
+ * Get the answer to use. This can be overridden in custom prompts.
+ * @api public
+ */
+
+Prompt.prototype.getAnswer = function(input, key) {
+  this.answer = this.question.getAnswer(input || this.getDefault(), key);
+  return this.answer;
+};
+
+/**
  * (Re-)render the prompt message, along with any help or error
  * messages, user input, choices, list items, and so on. This is
  * called to render the initial prompt, then it's called again
@@ -278,37 +322,49 @@ Prompt.prototype.render = function(state) {
     state = this.state;
   }
 
-  var append = this.renderError(state);
-  var message = this.renderMessage();
+  this.state = state;
+  var context = {
+    options: this.options,
+    status: this.status,
+    state: this.state,
+    line: this.rl.line,
+    answer: this.answer,
+    default: this.getDefault(),
+    original: this.renderMessage(this),
+    message: this.message,
+    prefix: this.prefix,
+    header: '',
+    append: '',
+    help: ''
+  };
 
-  switch (this.status) {
+  context.append = this.renderError(context);
+  context.message = this.renderMessage(context);
+
+  // render message with default settings
+  switch (context.status) {
     case 'help':
     case 'pending':
+    case 'expanded':
     case 'initialized':
-      message += this.renderHelp();
-      message += this.renderOutput();
+      context.help += this.renderHelp(context);
+      context.message += this.renderOutput(context);
       break;
     case 'answered':
-      message += this.renderAnswer();
+      context.message += this.renderAnswer(context);
+      context.answer = this.answer;
       break;
     case 'interacted':
     case 'submitted':
     default: {
-      message += this.renderOutput();
+      context.message += this.renderOutput(context);
       break;
     }
   }
 
-  var context = {
-    state: state,
-    status: this.status,
-    line: this.rl.line,
-    message: message,
-    append: append
-  };
-
-  this.emit('render', context);
-  this.ui.render(context.message, context.append);
+  // override message in custom prompts
+  this.emit('render', context, this);
+  this.ui.render(context.header, context.message, context.append);
 };
 
 /**
@@ -329,8 +385,8 @@ Prompt.prototype.render = function(state) {
  * @api public
  */
 
-Prompt.prototype.renderMessage = function() {
-  return this.prefix + log.bold(this.message) + ' ';
+Prompt.prototype.renderMessage = function(context) {
+  return context.prefix + log.bold(context.message) + ' ';
 };
 
 /**
@@ -347,14 +403,13 @@ Prompt.prototype.renderMessage = function() {
  * @api public
  */
 
-Prompt.prototype.renderHelp = function() {
-  this.status = 'interacted';
-  var message = this.options.helpMessage || this.helpMessage || '';
+Prompt.prototype.renderHelp = function(context) {
+  var help = this.getHelp();
   var val = this.getDefault();
-  if (!message && val != null) {
-    message = log.dim('(' + val + ') ');
+  if (!help && val != null) {
+    help = log.dim('(' + val + ') ');
   }
-  return message;
+  return help;
 };
 
 /**
@@ -371,12 +426,12 @@ Prompt.prototype.renderHelp = function() {
  * @api public
  */
 
-Prompt.prototype.renderError = function(valid) {
-  if (valid === false) {
-    return this.options.errorMessage || this.errorMessage;
+Prompt.prototype.renderError = function(context) {
+  if (context.state === false) {
+    return this.getError();
   }
-  if (typeof valid === 'string') {
-    return log.red('>> ') + valid;
+  if (typeof context.state === 'string') {
+    return log.red('>> ') + context.state;
   }
   return '';
 };
@@ -390,7 +445,7 @@ Prompt.prototype.renderError = function(valid) {
  * @api public
  */
 
-Prompt.prototype.renderOutput = function() {
+Prompt.prototype.renderOutput = function(context) {
   return this.renderMask(this.rl.line);
 };
 
@@ -461,22 +516,7 @@ Prompt.prototype.dispatch = function(input, key) {
 
   if (key.name === 'line') {
     this.status = 'submitted';
-    input = this.getAnswer(input, key);
-  }
-
-  // on "shift+up" and "shift+down", add or remove
-  // vertical lines to display more of the prompt
-  if (this.options.expandHeight !== false && key.shift === true) {
-    switch (key.name) {
-      case 'up':
-        this.options.limit--;
-        break;
-      case 'down':
-        this.options.limit++;
-        break;
-    }
-    this.render();
-    return;
+    input = this.answer = this.getAnswer(input, key);
   }
 
   Promise.resolve(this.validate(input, key))
@@ -517,30 +557,6 @@ Prompt.prototype.onError = function(err) {
     console.error(err);
     this.callback();
   }
-};
-
-/**
- * Get the answer to use. This can be overridden in custom prompts.
- * @api public
- */
-
-Prompt.prototype.getDefault = function() {
-  if (this.choices && this.choices.length && isNumber(this.question.default)) {
-    var choice = this.choices.get(this.question.default);
-    this.position = this.choices.items.indexOf(choice);
-    this.question.default = choice.name;
-  }
-  return this.question.default;
-};
-
-/**
- * Get the answer to use. This can be overridden in custom prompts.
- * @api public
- */
-
-Prompt.prototype.getAnswer = function(input, key) {
-  this.answer = this.question.getAnswer(input || this.getDefault(), key);
-  return this.answer;
 };
 
 /**
@@ -621,12 +637,12 @@ Prompt.prototype.mute = function() {
  * @api public
  */
 
-Prompt.prototype.end = function(render) {
+Prompt.prototype.end = function(state) {
   this.only();
-  if (render !== false) {
+  if (state !== false) {
     this.render();
   }
-  this.ui.end(render);
+  this.ui.end(state);
   this.rl.pause();
 };
 
