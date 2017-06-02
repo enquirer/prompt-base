@@ -81,7 +81,7 @@ Create a new Prompt with the given `question` object, `answers` and optional ins
 **Params**
 
 * `question` **{Object}**: Plain object or instance of [prompt-question](https://github.com/enquirer/prompt-question).
-* `answers` **{Object}**: Optionally pass an answers object from a prompt manager (like [enquirer](https://github.com/enquirer/enquirer)).
+* `answers` **{Object}**: Optionally pass an answers object from a prompt manager (like [enquirer](http://enquirer.io)).
 * `ui` **{Object}**: Optionally pass an instance of [readline-ui](https://github.com/enquirer/readline-ui). If not passed, an instance is created for you.
 
 **Example**
@@ -98,7 +98,7 @@ prompt.ask(function(answer) {
 });
 ```
 
-### [.transform](index.js#L100)
+### [.transform](index.js#L102)
 
 Modify the answer value before it's returned. Must return a string or promise.
 
@@ -118,7 +118,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.validate](index.js#L138)
+### [.validate](index.js#L140)
 
 Validate user input on `keypress` events and the answer value when it's submitted by the `line` event (when the user hits <kbd>enter</kbd>. This may be overridden in custom prompts. If the function returns `false`, either `question.errorMessage` or the default validation error message (`invalid input`) is used. Must return a boolean, string or promise.
 
@@ -143,7 +143,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.when](index.js#L166)
+### [.when](index.js#L168)
 
 A custom `.when` function may be defined to determine
 whether or not a question should be asked at all. Must
@@ -165,7 +165,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.ask](index.js#L192)
+### [.ask](index.js#L194)
 
 Run the prompt with the given `callback` function.
 
@@ -188,7 +188,7 @@ prompt.ask(function(answer) {
 });
 ```
 
-### [.run](index.js#L233)
+### [.run](index.js#L235)
 
 Run the prompt and resolve answers. If [when](#when) is defined and returns false, the prompt will be skipped.
 
@@ -214,23 +214,23 @@ prompt.run(answers)
   });
 ```
 
-### [.getDefault](index.js#L266)
+### [.getDefault](index.js#L268)
 
 Get the answer to use. This can be overridden in custom prompts.
 
-### [.getError](index.js#L280)
+### [.getError](index.js#L286)
 
 Get the error message to use. This can be overridden in custom prompts.
 
-### [.getHelp](index.js#L289)
+### [.getHelp](index.js#L295)
 
 Get the help message to use. This can be overridden in custom prompts.
 
-### [.getAnswer](index.js#L298)
+### [.getAnswer](index.js#L304)
 
 Get the answer to use. This can be overridden in custom prompts.
 
-### [.render](index.js#L319)
+### [.render](index.js#L325)
 
 (Re-)render the prompt message, along with any help or error messages, user input, choices, list items, and so on. This is called to render the initial prompt, then it's called again each time the prompt changes, such as on keypress events (when the user enters input, or a multiple-choice option is selected). This method may be overridden in custom prompts, but it's recommended that you override the more specific render "status" methods instead.
 
@@ -240,7 +240,7 @@ Get the answer to use. This can be overridden in custom prompts.
 prompt.ui.on('keypress', prompt.render.bind(prompt));
 ```
 
-### [.renderMessage](index.js#L390)
+### [.renderMessage](index.js#L397)
 
 Format the prompt message.
 
@@ -260,7 +260,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.renderHelp](index.js#L408)
+### [.renderHelp](index.js#L415)
 
 Called by [render](#render) to render a help message when the
 `prompt.status` is `initialized` or `help` (usually when the
@@ -275,7 +275,7 @@ A custom help message may be defined on `options.helpMessage`.
 * `valid` **{boolean|string|undefined}**
 * `returns` **{String}**
 
-### [.renderError](index.js#L431)
+### [.renderError](index.js#L438)
 
 Render an error message in the prompt, when `valid` is
 false or a string. This is used when a validation method
@@ -289,7 +289,7 @@ error message may also be defined on `options.errorMessage`.
 * `valid` **{boolean|string|undefined}**
 * `returns` **{String}**
 
-### [.renderOutput](index.js#L450)
+### [.renderOutput](index.js#L457)
 
 Called by [render](#render) to render the readline `line`
 when `prompt.status` is anything besides `answered`, which
@@ -297,7 +297,7 @@ includes everything except for error and help messages.
 
 * `returns` **{String}**
 
-### [.renderMask](index.js#L464)
+### [.renderMask](index.js#L471)
 
 Mask user input. Called by [renderOutput](#renderOutput),
 this is an identity function that does nothing by default,
@@ -306,14 +306,14 @@ as [prompt-password](https://github.com/enquirer/prompt-password).
 
 * `returns` **{String}**
 
-### [.renderAnswer](index.js#L476)
+### [.renderAnswer](index.js#L483)
 
 Render the user's "answer". Called by [render](#render) when
 the `prompt.status` is changed to `answered`.
 
 * `returns` **{String}**
 
-### [.action](index.js#L492)
+### [.action](index.js#L499)
 
 Get action `name`, or set action `name` with the given `fn`.
 This is useful for overridding actions in custom prompts.
@@ -326,7 +326,7 @@ and so on
 * `fn` **{Function}**
 * `returns` **{Object|Function}**: Returns the prompt instance if setting, or the action function if getting.
 
-### [.dispatch](index.js#L509)
+### [.dispatch](index.js#L516)
 
 Move the cursor in the given `direction` when a `keypress`
 event is emitted.
@@ -336,7 +336,7 @@ event is emitted.
 * `direction` **{String}**
 * `event` **{Object}**
 
-### [.onError](index.js#L554)
+### [.onError](index.js#L561)
 
 Default error event handler. If an `error` listener exist, an `error`
 event will be emitted, otherwise the error is logged onto `stderr` and
@@ -346,12 +346,12 @@ the process is exited. This can be overridden in custom prompts.
 
 * `err` **{Object}**
 
-### [.submitAnswer](index.js#L570)
+### [.submitAnswer](index.js#L577)
 
 Re-render and pass the final answer to the callback.
 This can be replaced by custom prompts.
 
-### [.only](index.js#L593)
+### [.only](index.js#L600)
 
 Ensures that events for event `name` are only **registered** once and are disabled correctly when specified. This is different from `.once`, which only **emits** once.
 
@@ -363,7 +363,7 @@ prompt.only('keypress', function() {
 });
 ```
 
-### [.mute](index.js#L622)
+### [.mute](index.js#L629)
 
 Mutes the output stream that was used to create the readline interface, and returns a function for unmuting the stream. This is useful in unit tests.
 
@@ -379,31 +379,44 @@ var unmute = prompt.mute();
 unmute();
 ```
 
-### [.end](index.js#L642)
+### [.end](index.js#L649)
 
 Pause the readline and unmute the output stream that was
 used to create the readline interface, which is `process.stdout`
 by default.
 
-### [.resume](index.js#L657)
+### [.resume](index.js#L664)
 
 [Resume](https://nodejs.org/api/readline.html#readline_rl_resume) the readline input stream if it has been paused.
 
 * `returns` **{undefined}**
 
-### [.choices](index.js#L703)
+### [.choices](index.js#L710)
 
 Getter for getting the choices array from the question.
 
 * `returns` **{Object}**: Choices object
 
-### [.message](index.js#L720)
+### [.message](index.js#L727)
 
 Getter that returns `question.message` after passing it to [format](#format).
 
 * `returns` **{String}**: A formatted prompt message.
 
-### [.prefix](index.js#L742)
+### [.symbol](index.js#L748)
+
+Getter/setter for getting the checkbox symbol to use.
+
+* `returns` **{String}**: The formatted symbol.
+
+**Example**
+
+```js
+// customize
+prompt.symbol = '[ ]';
+```
+
+### [.prefix](index.js#L774)
 
 Getter/setter that returns the prefix to use before `question.message`. The default value is a green `?`.
 
@@ -416,14 +429,14 @@ Getter/setter that returns the prefix to use before `question.message`. The defa
 prompt.prefix = ' ❤ ';
 ```
 
-### [.ask](index.js#L771)
+### [.ask](index.js#L802)
 
-Static convenience method for running the prompt asynchronously. Takes the same arguments as the contructror.
+Static convenience method for running the [.ask](#ask) method. Takes the same arguments as the contructror.
 
 **Params**
 
 * `question` **{Object}**: Plain object or instance of [prompt-question](https://github.com/enquirer/prompt-question).
-* `answers` **{Object}**: Optionally pass an answers object from a prompt manager (like [enquirer](https://github.com/enquirer/enquirer)).
+* `answers` **{Object}**: Optionally pass an answers object from a prompt manager (like [enquirer](http://enquirer.io)).
 * `ui` **{Object}**: Optionally pass an instance of [readline-ui](https://github.com/enquirer/readline-ui). If not passed, an instance is created for you.
 * `callback` **{Function}**
 * `returns` **{undefined}**
@@ -432,21 +445,20 @@ Static convenience method for running the prompt asynchronously. Takes the same 
 
 ```js
 var prompt = require('prompt-base');
-var question = { name: 'color', message: 'What is your favorite color?' };
-prompt.ask(question, function(answer) {
-  console.log(answer);
-  //=> 'blue'
-});
+  .ask('What is your favorite color?', function(answer) {
+    console.log({color: answer});
+    //=> { color: 'blue' }
+  });
 ```
 
-### [.run](index.js#L797)
+### [.run](index.js#L828)
 
-Static convenience method for running the prompt. Takes the same arguments as the contructror.
+Static convenience method for running the [.run](#run) method. Takes the same arguments as the contructror.
 
 **Params**
 
 * `question` **{Object}**: Plain object or instance of [prompt-question](https://github.com/enquirer/prompt-question).
-* `answers` **{Object}**: Optionally pass an answers object from a prompt manager (like [enquirer](https://github.com/enquirer/enquirer)).
+* `answers` **{Object}**: Optionally pass an answers object from a prompt manager (like [enquirer](http://enquirer.io)).
 * `ui` **{Object}**: Optionally pass an instance of [readline-ui](https://github.com/enquirer/readline-ui). If not passed, an instance is created for you.
 * `returns` **{Promise}**
 
@@ -454,14 +466,14 @@ Static convenience method for running the prompt. Takes the same arguments as th
 
 ```js
 var prompt = require('prompt-base');
-prompt.run({ name: 'color', message: 'What is your favorite color?'})
+  .run('What is your favorite color?')
   .then(function(answer) {
-    console.log(answer);
-    //=> 'blue'
+    console.log({color: answer});
+    //=> { color: 'blue' }
   });
 ```
 
-### [.Question](index.js#L813)
+### [.Question](index.js#L844)
 
 Create a new `Question`. See [prompt-question](https://github.com/enquirer/prompt-question) for more details.
 
@@ -476,7 +488,7 @@ Create a new `Question`. See [prompt-question](https://github.com/enquirer/promp
 var question = new Prompt.Question({name: 'foo'});
 ```
 
-### [.Choices](index.js#L827)
+### [.Choices](index.js#L858)
 
 Create a new `Choices` object. See [prompt-choices](https://github.com/enquirer/prompt-choices) for more details.
 
@@ -491,7 +503,7 @@ Create a new `Choices` object. See [prompt-choices](https://github.com/enquirer/
 var choices = new Prompt.Choices(['foo', 'bar', 'baz']);
 ```
 
-### [.Separator](index.js#L840)
+### [.Separator](index.js#L871)
 
 Create a new `Separator` object. See [choices-separator](https://github.com/enquirer/choices-separator) for more details.
 
@@ -562,20 +574,20 @@ enquirer.on('answer', function(answer) {
 The following custom prompts were created using this library:
 
 * [prompt-autocomplete](https://www.npmjs.com/package/prompt-autocomplete): A prompt in the terminal but with autocomplete functionality | [homepage](https://github.com/rickbergfalk/prompt-autocomplete "A prompt in the terminal but with autocomplete functionality")
-* [prompt-checkbox](https://www.npmjs.com/package/prompt-checkbox): Multiple-choice/checkbox prompt. Can be used standalone or with a prompt system like [Enquirer](https://github.com/enquirer/enquirer). | [homepage](https://github.com/enquirer/prompt-checkbox "Multiple-choice/checkbox prompt. Can be used standalone or with a prompt system like [Enquirer].")
-* [prompt-confirm](https://www.npmjs.com/package/prompt-confirm): Confirm (yes/no) prompt. Can be used standalone or with a prompt system like [Enquirer](https://github.com/enquirer/enquirer). | [homepage](https://github.com/enquirer/prompt-confirm "Confirm (yes/no) prompt. Can be used standalone or with a prompt system like [Enquirer].")
+* [prompt-checkbox](https://www.npmjs.com/package/prompt-checkbox): Multiple-choice/checkbox prompt. Can be used standalone or with a prompt system like [Enquirer](http://enquirer.io). | [homepage](https://github.com/enquirer/prompt-checkbox "Multiple-choice/checkbox prompt. Can be used standalone or with a prompt system like [Enquirer].")
+* [prompt-confirm](https://www.npmjs.com/package/prompt-confirm): Confirm (yes/no) prompt. Can be used standalone or with a prompt system like [Enquirer](http://enquirer.io). | [homepage](https://github.com/enquirer/prompt-confirm "Confirm (yes/no) prompt. Can be used standalone or with a prompt system like [Enquirer].")
 * [prompt-editor](https://www.npmjs.com/package/prompt-editor): Editor prompt. Opens your text editor and waits for you to save your input during… [more](https://github.com/enquirer/prompt-editor) | [homepage](https://github.com/enquirer/prompt-editor "Editor prompt. Opens your text editor and waits for you to save your input during a prompt. Can be used standalone or with a prompt system like [Enquirer].")
 * [prompt-expand](https://www.npmjs.com/package/prompt-expand): Expand prompt. Can be used as a standalone prompt, or with a prompt system like… [more](https://github.com/enquirer/prompt-expand) | [homepage](https://github.com/enquirer/prompt-expand "Expand prompt. Can be used as a standalone prompt, or with a prompt system like [Enquirer].")
 * [prompt-list](https://www.npmjs.com/package/prompt-list): List-style prompt. Can be used as a standalone prompt, or with a prompt system like… [more](https://github.com/enquirer/prompt-list) | [homepage](https://github.com/enquirer/prompt-list "List-style prompt. Can be used as a standalone prompt, or with a prompt system like [enquirer].")
-* [prompt-password](https://www.npmjs.com/package/prompt-password): Password prompt. Can be used as a standalone prompt, or with a prompt system like… [more](https://github.com/enquirer/prompt-password) | [homepage](https://github.com/enquirer/prompt-password "Password prompt. Can be used as a standalone prompt, or with a prompt system like [Enquirer].")
-* [prompt-radio](https://www.npmjs.com/package/prompt-radio): Radio prompt. This prompt behaves like other radio-button interfaces, where only one choice is enabled… [more](https://github.com/enquirer/prompt-radio) | [homepage](https://github.com/enquirer/prompt-radio "Radio prompt. This prompt behaves like other radio-button interfaces, where only one choice is enabled whilst all others are disabled. Can be used as a standalone prompt, or with a prompt system like [Enquirer].")
+* [prompt-password](https://www.npmjs.com/package/prompt-password): Password prompt. Can be used as a standalone prompt, or as a plugin for [Enquirer](http://enquirer.io). | [homepage](https://github.com/enquirer/prompt-password "Password prompt. Can be used as a standalone prompt, or as a plugin for [Enquirer].")
+* [prompt-radio](https://www.npmjs.com/package/prompt-radio): Radio prompt. Can be used as a standalone prompt, or as a plugin for [Enquirer](http://enquirer.io). | [homepage](https://github.com/enquirer/prompt-radio "Radio prompt. Can be used as a standalone prompt, or as a plugin for [Enquirer].")
 * [prompt-rawlist](https://www.npmjs.com/package/prompt-rawlist): Rawlist prompt. Can be used as a standalone prompt, or with a prompt system like… [more](https://github.com/enquirer/prompt-rawlist) | [homepage](https://github.com/enquirer/prompt-rawlist "Rawlist prompt. Can be used as a standalone prompt, or with a prompt system like [Enquirer].")
 
 ## About
 
 ### Related projects
 
-* [enquirer](https://www.npmjs.com/package/enquirer): Intuitive, plugin-based prompt system for node.js. Much faster and lighter alternative to Inquirer, with all… [more](https://github.com/enquirer/enquirer) | [homepage](https://github.com/enquirer/enquirer "Intuitive, plugin-based prompt system for node.js. Much faster and lighter alternative to Inquirer, with all the same prompt types and more, but without the bloat.")
+* [enquirer](https://www.npmjs.com/package/enquirer): Intuitive, plugin-based prompt system for node.js. | [homepage](http://enquirer.io "Intuitive, plugin-based prompt system for node.js.")
 * [prompt-choices](https://www.npmjs.com/package/prompt-choices): Create an array of multiple choice objects for use in prompts. | [homepage](https://github.com/enquirer/prompt-choices "Create an array of multiple choice objects for use in prompts.")
 * [prompt-question](https://www.npmjs.com/package/prompt-question): Question object, used by Enquirer and prompt plugins. | [homepage](https://github.com/enquirer/prompt-question "Question object, used by Enquirer and prompt plugins.")
 * [readline-utils](https://www.npmjs.com/package/readline-utils): Readline utils, for moving the cursor, clearing lines, creating a readline interface, and more. | [homepage](https://github.com/enquirer/readline-utils "Readline utils, for moving the cursor, clearing lines, creating a readline interface, and more.")
@@ -590,7 +602,7 @@ Please read the [contributing guide](.github/contributing.md) for advice on open
 
 | **Commits** | **Contributor** | 
 | --- | --- |
-| 122 | [jonschlinkert](https://github.com/jonschlinkert) |
+| 128 | [jonschlinkert](https://github.com/jonschlinkert) |
 | 6 | [doowb](https://github.com/doowb) |
 
 ### Building docs
@@ -625,4 +637,4 @@ Released under the [MIT License](LICENSE).
 
 ***
 
-_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on May 28, 2017._
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on June 02, 2017._
