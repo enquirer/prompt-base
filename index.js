@@ -45,9 +45,11 @@ function Prompt(question, answers, ui) {
     Prompt.apply(proto, arguments);
     return proto;
   }
-
   Emitter.call(this);
-  this.question = this.options = new Question(question);
+  if (!(question instanceof Question)) {
+    question = new Question(question);
+  }
+  this.question = this.options = question;
   this.initialDefault = this.question.default;
   this.answers = answers || {};
   this.actions = new Actions(this);
@@ -264,10 +266,14 @@ Prompt.prototype.run = function(answers) {
  */
 
 Prompt.prototype.getDefault = function() {
-  if (this.choices && this.choices.length && isNumber(this.question.default)) {
-    var choice = this.choices.get(this.question.default);
-    this.position = this.choices.items.indexOf(choice);
-    this.question.default = choice.name;
+  if (this.choices && this.choices.length) {
+    if (this.question.default != null) {
+      var choice = this.choices.get(this.question.default);
+      var idx = this.choices.getIndex(this.choices.default);
+      this.question.default = choice.name;
+      this.choices.default = idx;
+      this.position = idx;
+    }
   }
   return this.question.default;
 };
@@ -332,7 +338,8 @@ Prompt.prototype.render = function(state) {
     original: this.renderMessage(this),
     message: this.message,
     prefix: this.prefix,
-    header: '',
+    banner: '',
+    footer: '',
     append: '',
     help: ''
   };
@@ -346,7 +353,7 @@ Prompt.prototype.render = function(state) {
     case 'pending':
     case 'expanded':
     case 'initialized':
-      context.help += this.renderHelp(context);
+      context.message += this.renderHelp(context);
       context.message += this.renderOutput(context);
       break;
     case 'answered':
@@ -727,6 +734,31 @@ Object.defineProperty(Prompt.prototype, 'message', {
 });
 
 /**
+ * Getter/setter for getting the checkbox symbol to use.
+ *
+ * ```js
+ * // customize
+ * prompt.symbol = '[ ]';
+ * ```
+ * @name .symbol
+ * @return {String} The formatted symbol.
+ * @api public
+ */
+
+Object.defineProperty(Prompt.prototype, 'symbol', {
+  set: function(symbol) {
+    this.question.symbol = symbol;
+  },
+  get: function() {
+    var val = koalas(this.question.symbol, this.question.options.symbol);
+    if (val != null) {
+      this.question.symbol = val;
+    }
+    return val;
+  }
+});
+
+/**
  * Getter/setter that returns the prefix to use before `question.message`.
  * The default value is a green `?`.
  *
@@ -740,8 +772,8 @@ Object.defineProperty(Prompt.prototype, 'message', {
  */
 
 Object.defineProperty(Prompt.prototype, 'prefix', {
-  set: function(input) {
-    this.question.prefix = input;
+  set: function(prefix) {
+    this.question.prefix = prefix;
   },
   get: function() {
     return this.question.prefix || (log.cyan('?') + ' ');
@@ -749,16 +781,15 @@ Object.defineProperty(Prompt.prototype, 'prefix', {
 });
 
 /**
- * Static convenience method for running the prompt asynchronously.
+ * Static convenience method for running the [.ask](#ask) method.
  * Takes the same arguments as the contructror.
  *
  * ```js
  * var prompt = require('prompt-base');
- * var question = { name: 'color', message: 'What is your favorite color?' };
- * prompt.ask(question, function(answer) {
- *   console.log(answer);
- *   //=> 'blue'
- * });
+ *   .ask('What is your favorite color?', function(answer) {
+ *     console.log({color: answer});
+ *     //=> { color: 'blue' }
+ *   });
  * ```
  * @param {Object} `question` Plain object or instance of [prompt-question][].
  * @param {Object} `answers` Optionally pass an answers object from a prompt manager (like [enquirer][]).
@@ -776,15 +807,15 @@ Prompt.ask = function(question, answers, ui) {
 };
 
 /**
- * Static convenience method for running the prompt.
+ * Static convenience method for running the [.run](#run) method.
  * Takes the same arguments as the contructror.
  *
  * ```js
  * var prompt = require('prompt-base');
- * prompt.run({ name: 'color', message: 'What is your favorite color?'})
+ *   .run('What is your favorite color?')
  *   .then(function(answer) {
- *     console.log(answer);
- *     //=> 'blue'
+ *     console.log({color: answer});
+ *     //=> { color: 'blue' }
  *   });
  * ```
  * @param {Object} `question` Plain object or instance of [prompt-question][].
