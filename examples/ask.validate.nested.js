@@ -4,9 +4,6 @@ var answers = {};
 var foo = new Prompt({
   name: 'foo',
   message: 'What is foo?',
-  when: function() {
-    return true;
-  },
   validate: function(str) {
     return !/^[a-z]+$/i.test(str) ? 'invalid value' : true;
   }

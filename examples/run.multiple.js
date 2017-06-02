@@ -7,17 +7,12 @@ var baz = new Prompt({name: 'baz', message: 'What is baz?'});
 foo.run(obj)
   .then(function(answer) {
     console.log(answer);
-    // console.log(obj);
-
     bar.run(obj)
       .then(function(answer) {
         console.log(answer);
-        // console.log(obj);
-
         baz.run(obj)
           .then(function(answer) {
             console.log(answer);
-            // console.log(obj);
           });
       });
   })
