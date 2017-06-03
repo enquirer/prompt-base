@@ -74,7 +74,7 @@ Prompt.extend(CustomPrompt);
 
 ## API
 
-### [Prompt](index.js#L36)
+### [Prompt](index.js#L35)
 
 Create a new Prompt with the given `question` object, `answers` and optional instance of [readline-ui](https://github.com/enquirer/readline-ui).
 
@@ -218,19 +218,19 @@ prompt.run(answers)
 
 Get the answer to use. This can be overridden in custom prompts.
 
-### [.getError](index.js#L286)
+### [.getError](index.js#L292)
 
 Get the error message to use. This can be overridden in custom prompts.
 
-### [.getHelp](index.js#L295)
+### [.getHelp](index.js#L301)
 
 Get the help message to use. This can be overridden in custom prompts.
 
-### [.getAnswer](index.js#L304)
+### [.getAnswer](index.js#L310)
 
 Get the answer to use. This can be overridden in custom prompts.
 
-### [.render](index.js#L325)
+### [.render](index.js#L331)
 
 (Re-)render the prompt message, along with any help or error messages, user input, choices, list items, and so on. This is called to render the initial prompt, then it's called again each time the prompt changes, such as on keypress events (when the user enters input, or a multiple-choice option is selected). This method may be overridden in custom prompts, but it's recommended that you override the more specific render "status" methods instead.
 
@@ -240,7 +240,7 @@ Get the answer to use. This can be overridden in custom prompts.
 prompt.ui.on('keypress', prompt.render.bind(prompt));
 ```
 
-### [.renderMessage](index.js#L397)
+### [.renderMessage](index.js#L403)
 
 Format the prompt message.
 
@@ -260,7 +260,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.renderHelp](index.js#L415)
+### [.renderHelp](index.js#L421)
 
 Called by [render](#render) to render a help message when the
 `prompt.status` is `initialized` or `help` (usually when the
@@ -275,7 +275,7 @@ A custom help message may be defined on `options.helpMessage`.
 * `valid` **{boolean|string|undefined}**
 * `returns` **{String}**
 
-### [.renderError](index.js#L438)
+### [.renderError](index.js#L444)
 
 Render an error message in the prompt, when `valid` is
 false or a string. This is used when a validation method
@@ -289,7 +289,7 @@ error message may also be defined on `options.errorMessage`.
 * `valid` **{boolean|string|undefined}**
 * `returns` **{String}**
 
-### [.renderOutput](index.js#L457)
+### [.renderOutput](index.js#L463)
 
 Called by [render](#render) to render the readline `line`
 when `prompt.status` is anything besides `answered`, which
@@ -297,7 +297,7 @@ includes everything except for error and help messages.
 
 * `returns` **{String}**
 
-### [.renderMask](index.js#L471)
+### [.renderMask](index.js#L477)
 
 Mask user input. Called by [renderOutput](#renderOutput),
 this is an identity function that does nothing by default,
@@ -306,14 +306,14 @@ as [prompt-password](https://github.com/enquirer/prompt-password).
 
 * `returns` **{String}**
 
-### [.renderAnswer](index.js#L483)
+### [.renderAnswer](index.js#L489)
 
 Render the user's "answer". Called by [render](#render) when
 the `prompt.status` is changed to `answered`.
 
 * `returns` **{String}**
 
-### [.action](index.js#L499)
+### [.action](index.js#L505)
 
 Get action `name`, or set action `name` with the given `fn`.
 This is useful for overridding actions in custom prompts.
@@ -326,7 +326,7 @@ and so on
 * `fn` **{Function}**
 * `returns` **{Object|Function}**: Returns the prompt instance if setting, or the action function if getting.
 
-### [.dispatch](index.js#L516)
+### [.dispatch](index.js#L522)
 
 Move the cursor in the given `direction` when a `keypress`
 event is emitted.
@@ -336,7 +336,7 @@ event is emitted.
 * `direction` **{String}**
 * `event` **{Object}**
 
-### [.onError](index.js#L561)
+### [.onError](index.js#L567)
 
 Default error event handler. If an `error` listener exist, an `error`
 event will be emitted, otherwise the error is logged onto `stderr` and
@@ -346,12 +346,12 @@ the process is exited. This can be overridden in custom prompts.
 
 * `err` **{Object}**
 
-### [.submitAnswer](index.js#L577)
+### [.submitAnswer](index.js#L583)
 
 Re-render and pass the final answer to the callback.
 This can be replaced by custom prompts.
 
-### [.only](index.js#L600)
+### [.only](index.js#L606)
 
 Ensures that events for event `name` are only **registered** once and are disabled correctly when specified. This is different from `.once`, which only **emits** once.
 
@@ -363,7 +363,7 @@ prompt.only('keypress', function() {
 });
 ```
 
-### [.mute](index.js#L629)
+### [.mute](index.js#L635)
 
 Mutes the output stream that was used to create the readline interface, and returns a function for unmuting the stream. This is useful in unit tests.
 
@@ -379,31 +379,31 @@ var unmute = prompt.mute();
 unmute();
 ```
 
-### [.end](index.js#L649)
+### [.end](index.js#L655)
 
 Pause the readline and unmute the output stream that was
 used to create the readline interface, which is `process.stdout`
 by default.
 
-### [.resume](index.js#L664)
+### [.resume](index.js#L670)
 
 [Resume](https://nodejs.org/api/readline.html#readline_rl_resume) the readline input stream if it has been paused.
 
 * `returns` **{undefined}**
 
-### [.choices](index.js#L710)
+### [.choices](index.js#L716)
 
 Getter for getting the choices array from the question.
 
 * `returns` **{Object}**: Choices object
 
-### [.message](index.js#L727)
+### [.message](index.js#L733)
 
 Getter that returns `question.message` after passing it to [format](#format).
 
 * `returns` **{String}**: A formatted prompt message.
 
-### [.symbol](index.js#L748)
+### [.symbol](index.js#L754)
 
 Getter/setter for getting the checkbox symbol to use.
 
@@ -416,7 +416,7 @@ Getter/setter for getting the checkbox symbol to use.
 prompt.symbol = '[ ]';
 ```
 
-### [.prefix](index.js#L774)
+### [.prefix](index.js#L780)
 
 Getter/setter that returns the prefix to use before `question.message`. The default value is a green `?`.
 
@@ -429,7 +429,7 @@ Getter/setter that returns the prefix to use before `question.message`. The defa
 prompt.prefix = ' ❤ ';
 ```
 
-### [.ask](index.js#L802)
+### [.ask](index.js#L808)
 
 Static convenience method for running the [.ask](#ask) method. Takes the same arguments as the contructror.
 
@@ -451,7 +451,7 @@ var prompt = require('prompt-base');
   });
 ```
 
-### [.run](index.js#L828)
+### [.run](index.js#L834)
 
 Static convenience method for running the [.run](#run) method. Takes the same arguments as the contructror.
 
@@ -473,7 +473,7 @@ var prompt = require('prompt-base');
   });
 ```
 
-### [.Question](index.js#L844)
+### [.Question](index.js#L850)
 
 Create a new `Question`. See [prompt-question](https://github.com/enquirer/prompt-question) for more details.
 
@@ -488,7 +488,7 @@ Create a new `Question`. See [prompt-question](https://github.com/enquirer/promp
 var question = new Prompt.Question({name: 'foo'});
 ```
 
-### [.Choices](index.js#L858)
+### [.Choices](index.js#L864)
 
 Create a new `Choices` object. See [prompt-choices](https://github.com/enquirer/prompt-choices) for more details.
 
@@ -503,7 +503,7 @@ Create a new `Choices` object. See [prompt-choices](https://github.com/enquirer/
 var choices = new Prompt.Choices(['foo', 'bar', 'baz']);
 ```
 
-### [.Separator](index.js#L871)
+### [.Separator](index.js#L877)
 
 Create a new `Separator` object. See [choices-separator](https://github.com/enquirer/choices-separator) for more details.
 
@@ -602,7 +602,7 @@ Please read the [contributing guide](.github/contributing.md) for advice on open
 
 | **Commits** | **Contributor** | 
 | --- | --- |
-| 128 | [jonschlinkert](https://github.com/jonschlinkert) |
+| 134 | [jonschlinkert](https://github.com/jonschlinkert) |
 | 6 | [doowb](https://github.com/doowb) |
 
 ### Building docs
