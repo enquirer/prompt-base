@@ -43,6 +43,19 @@ describe('.default', function() {
     prompt.rl.input.emit('keypress', '\n');
   });
 
+  it('should get default as a string for text prompt', function(cb) {
+    prompt.question.default = 'woohooo!';
+    assert.equal(prompt.getDefault(), 'woohooo!');
+    cb();
+  });
+
+  it('should get choices default as a string', function(cb) {
+    prompt.question.choices = ['foo', 'bar', 'baz'];
+    prompt.question.default = 'bar';
+    assert.equal(prompt.getDefault(), 'bar');
+    cb();
+  });
+
   it('should use default answer when answer is undefined', function(cb) {
     prompt.question.default = 'woohooo!';
     prompt.run()

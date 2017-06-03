@@ -9,7 +9,6 @@ var Question = require('prompt-question');
 var Actions = require('prompt-actions');
 var extend = require('static-extend');
 var utils = require('readline-utils');
-var isNumber = require('is-number');
 var UI = require('readline-ui');
 
 /**
@@ -45,16 +44,17 @@ function Prompt(question, answers, ui) {
     Prompt.apply(proto, arguments);
     return proto;
   }
+
   Emitter.call(this);
   if (!(question instanceof Question)) {
     question = new Question(question);
   }
+
   this.question = this.options = question;
-  this.initialDefault = this.question.default;
   this.answers = answers || {};
-  this.actions = new Actions(this);
-  this.contextHistory = [];
   this.context = {};
+  this.contextHistory = [];
+  this.actions = new Actions(this);
 
   if (typeof this.options.limit !== 'number') {
     this.options.limit = this.options.radio ? 9 : 7;
@@ -266,16 +266,22 @@ Prompt.prototype.run = function(answers) {
  */
 
 Prompt.prototype.getDefault = function() {
+  var def = this.question.default;
   if (this.choices && this.choices.length) {
-    if (this.question.default != null) {
-      var choice = this.choices.get(this.question.default);
-      var idx = this.choices.getIndex(this.choices.default);
-      this.question.default = choice.name;
-      this.choices.default = idx;
-      this.position = idx;
+    if (def != null) {
+      this.question.default = null;
+      this.choices.check(def);
+      this.choices.default = def;
+      if (Array.isArray(def)) def = def[0];
+      var choice = this.choices.get(def);
+      if (choice) {
+        def = choice.name;
+        this.position = choice.index;
+      }
     }
   }
-  return this.question.default;
+  this.initialDefault = def;
+  return def;
 };
 
 /**
@@ -528,20 +534,20 @@ Prompt.prototype.dispatch = function(input, key) {
     input = this.answer = this.getAnswer(input, key);
   }
 
+  // dispatch actions, if one matches a keypress
+  var action = self.action(key.name);
+  if (typeof action === 'function') {
+    this.position = action.call(this.actions, this.position, key);
+  }
+
   Promise.resolve(this.validate(input, key))
     .then(function(state) {
-      var action = self.action(key.name);
       self.state = state;
 
       // handle the "enter" keypress event
       if (key.name === 'line' && state === true) {
         self.render(state);
         return self.submitAnswer(input);
-      }
-
-      // dispatch actions, if one matches a keypress
-      if (typeof action === 'function') {
-        self.position = action.call(self.actions, self.position, key);
       }
 
       // re-render the prompt in the terminal

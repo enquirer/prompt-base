@@ -106,8 +106,8 @@ describe('.actions', function() {
     prompt.ask(function() {
       assert.equal(events.length, 3);
       assert.equal(events[0], 'number');
-      assert.equal(events[1], 'enter');
-      assert.equal(events[2], 'radio');
+      assert.equal(events[1], 'radio');
+      assert.equal(events[2], 'enter');
       cb();
     });
 
