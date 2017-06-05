@@ -29,8 +29,8 @@
     "koalas": "^1.0.2",
     "log-utils": "^0.2.1",
     "prompt-actions": "^3.0.2",
-    "prompt-question": "^4.0.1",
-    "readline-ui": "^2.2.2",
+    "prompt-question": "^4.0.2",
+    "readline-ui": "^2.2.3",
     "readline-utils": "^2.2.1",
     "static-extend": "^0.1.2"
   },
