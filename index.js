@@ -583,10 +583,11 @@ Prompt.prototype.onError = function(err) {
 Prompt.prototype.submitAnswer = function(answer) {
   setImmediate(function() {
     this.status = 'answered';
+    this.answer = answer;
     this.end();
-    this.emit('answer', answer);
+    this.emit('answer', this.answer);
     this.rl.line = '';
-    this.callback(answer);
+    this.callback(this.answer);
   }.bind(this));
 };
 
