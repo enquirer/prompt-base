@@ -680,6 +680,13 @@ Prompt.prototype.initListeners = function() {
   var prompt = this;
   var on = {};
 
+  this.action('tab', function(pos, key) {
+    if (key.shift === true && prompt.rl.line.slice(-1) === '\t') {
+      prompt.rl.input.emit('keypress', '', {name: 'backspace'});
+    }
+    return this.position(pos);
+  });
+
   // allow events to be defined using `question.on`. this is
   // defined as a setter/getter to allow events to be lazily
   // added after instantiation
