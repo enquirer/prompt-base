@@ -60,7 +60,6 @@ function Prompt(question, answers, ui) {
     this.options.limit = this.options.radio ? 9 : 7;
   }
 
-  this.choices.options.limit = this.options.limit;
   this.ui = ui || UI.create(this.options);
   this.rl = this.ui.rl;
   this.errorMessage = log.red('>> invalid input');
@@ -204,6 +203,7 @@ Prompt.prototype.ask = function(callback) {
   this.emit('ask', this);
 
   if (this.choices && this.choices.length) {
+    this.choices.options.limit = this.options.limit;
     utils.cursorHide(this.rl);
   }
   this.render();
