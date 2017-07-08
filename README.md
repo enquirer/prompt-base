@@ -12,7 +12,7 @@ $ npm install --save prompt-base
 
 ## Release history
 
-See [the changlog](changelog.md) for details.
+See [the changelog](changelog.md) for detailed release history.
 
 ## What is this?
 
