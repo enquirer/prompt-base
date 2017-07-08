@@ -1,5 +1,22 @@
 # Release history
 
+## v4.0.0
+
+**Changed**
+
+- no longer throws an error when question name is undefined
+
+**Added**
+
+- adds support for defining `prompt.question.default` as a function
+- adds support for defining `prompt.question.choices` as a function
+
+## v3.0.0
+
+**Added**
+
+- adds initial support for `prompt.context`, an object that can be passed around at runtime to simplify rendering. Future releases will gradually improve context handling until we make a full transition to redux, or redux-like state. Throughout this process, special care will be taken to ensure that the API is the same until the transition to redux, at which time we'll fully document any API changes.
+
 ## v2.0.2
 
 **Added**
