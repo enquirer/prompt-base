@@ -571,7 +571,6 @@ Prompt.prototype.dispatch = function(input, key) {
 
   // dispatch actions, if one matches a keypress
   var action = self.action(key.name);
-  input = input || '';
 
   if (typeof action === 'function') {
     this.position = action.call(this.actions, this.position, key);
