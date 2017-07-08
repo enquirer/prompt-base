@@ -72,7 +72,7 @@ function Prompt(question, answers, ui) {
   this.state = true;
   this.ui.rl.pause();
   this.initListeners();
-};
+}
 
 /**
  * Inherit `Base`
@@ -262,30 +262,44 @@ Prompt.prototype.run = function(answers) {
 
 /**
  * Get the answer to use. This can be overridden in custom prompts.
+ *
+ * ```js
+ * console.log(prompt.getDefault());
+ * ```
+ * @return {String}
  * @api public
  */
 
 Prompt.prototype.getDefault = function() {
-  var def = this.question.default;
+  var val = this.question.default;
+  if (typeof val === 'function') {
+    val = val.call(this);
+  }
+
   if (this.choices && this.choices.length) {
-    if (def != null) {
+    if (val != null) {
       this.question.default = null;
-      this.choices.check(def);
-      this.choices.default = def;
-      if (Array.isArray(def)) def = def[0];
-      var choice = this.choices.get(def);
+      this.choices.check(val);
+      this.choices.default = val;
+      if (Array.isArray(val)) val = val[0];
+      var choice = this.choices.get(val);
       if (choice) {
-        def = choice.name;
+        val = choice.name;
         this.position = choice.index;
       }
     }
   }
-  this.initialDefault = def;
-  return def;
+  this.initialDefault = val;
+  return val;
 };
 
 /**
  * Get the error message to use. This can be overridden in custom prompts.
+ *
+ * ```js
+ * console.log(prompt.getError());
+ * ```
+ * @return {String}
  * @api public
  */
 
@@ -295,6 +309,11 @@ Prompt.prototype.getError = function(input, key) {
 
 /**
  * Get the help message to use. This can be overridden in custom prompts.
+ *
+ * ```js
+ * console.log(prompt.getHelp());
+ * ```
+ * @return {String}
  * @api public
  */
 
@@ -304,6 +323,11 @@ Prompt.prototype.getHelp = function(input, key) {
 
 /**
  * Get the answer to use. This can be overridden in custom prompts.
+ *
+ * ```js
+ * console.log(prompt.getAnswer());
+ * ```
+ * @return {String}
  * @api public
  */
 
@@ -325,6 +349,7 @@ Prompt.prototype.getAnswer = function(input, key) {
  * ```js
  * prompt.ui.on('keypress', prompt.render.bind(prompt));
  * ```
+ * @return {undefined}
  * @api public
  */
 
@@ -339,14 +364,20 @@ Prompt.prototype.render = function(state) {
     status: this.status,
     state: this.state,
     line: this.rl.line,
+    keypress: this.keypress,
     answer: this.answer,
     default: this.getDefault(),
     original: this.renderMessage(this),
-    message: this.message,
-    prefix: this.prefix,
     banner: '',
+    header: '',
+    prefix: this.prefix,
+    message: this.message,
+    input: '',
     footer: '',
     append: '',
+    output: '',
+    error: '',
+    hint: '',
     help: ''
   };
 
@@ -487,7 +518,11 @@ Prompt.prototype.renderMask = function(input) {
  */
 
 Prompt.prototype.renderAnswer = function() {
-  return log.cyan(this.renderMask(this.answer));
+  var answer = this.renderMask(this.answer);
+  if (answer != null) {
+    return log.cyan(answer);
+  }
+  return '';
 };
 
 /**
@@ -536,6 +571,8 @@ Prompt.prototype.dispatch = function(input, key) {
 
   // dispatch actions, if one matches a keypress
   var action = self.action(key.name);
+  input = input || '';
+
   if (typeof action === 'function') {
     this.position = action.call(this.actions, this.position, key);
   }
@@ -544,14 +581,13 @@ Prompt.prototype.dispatch = function(input, key) {
     .then(function(state) {
       self.state = state;
 
-      // handle the "enter" keypress event
-      if (key.name === 'line' && state === true) {
-        self.render(state);
-        return self.submitAnswer(input);
-      }
-
       // re-render the prompt in the terminal
       self.render(state);
+
+      // handle the "enter" keypress event
+      if (key.name === 'line' && state === true) {
+        return self.submitAnswer(input);
+      }
     })
     .catch(this.onError);
 };
