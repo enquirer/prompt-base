@@ -1,5 +1,11 @@
 # Release history
 
+## v4.0.2
+
+**Fixed**
+
+- don't get choices until prompt is called. this ensures that choices defined as a function won't be called early.
+
 ## v4.0.0
 
 **Changed**

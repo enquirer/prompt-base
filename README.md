@@ -94,7 +94,7 @@ prompt.ask(function(answer) {
 });
 ```
 
-### [.transform](index.js#L102)
+### [.transform](index.js#L101)
 
 Modify the answer value before it's returned. Must return a string or promise.
 
@@ -114,7 +114,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.validate](index.js#L140)
+### [.validate](index.js#L139)
 
 Validate user input on `keypress` events and the answer value when it's submitted by the `line` event (when the user hits <kbd>enter</kbd>. This may be overridden in custom prompts. If the function returns `false`, either `question.errorMessage` or the default validation error message (`invalid input`) is used. Must return a boolean, string or promise.
 
@@ -139,7 +139,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.when](index.js#L168)
+### [.when](index.js#L167)
 
 A custom `.when` function may be defined to determine
 whether or not a question should be asked at all. Must
@@ -161,7 +161,7 @@ var prompt = new Prompt({
 });
 ```
 
-### [.ask](index.js#L194)
+### [.ask](index.js#L193)
 
 Run the prompt with the given `callback` function.
 
@@ -366,7 +366,7 @@ event is emitted.
 * `direction` **{String}**
 * `event` **{Object}**
 
-### [.onError](index.js#L603)
+### [.onError](index.js#L602)
 
 Default error event handler. If an `error` listener exist, an `error`
 event will be emitted, otherwise the error is logged onto `stderr` and
@@ -376,12 +376,12 @@ the process is exited. This can be overridden in custom prompts.
 
 * `err` **{Object}**
 
-### [.submitAnswer](index.js#L619)
+### [.submitAnswer](index.js#L618)
 
 Re-render and pass the final answer to the callback.
 This can be replaced by custom prompts.
 
-### [.only](index.js#L643)
+### [.only](index.js#L642)
 
 Ensures that events for event `name` are only **registered** once and are disabled correctly when specified. This is different from `.once`, which only **emits** once.
 
@@ -393,7 +393,7 @@ prompt.only('keypress', function() {
 });
 ```
 
-### [.mute](index.js#L672)
+### [.mute](index.js#L671)
 
 Mutes the output stream that was used to create the readline interface, and returns a function for unmuting the stream. This is useful in unit tests.
 
@@ -409,31 +409,31 @@ var unmute = prompt.mute();
 unmute();
 ```
 
-### [.end](index.js#L692)
+### [.end](index.js#L691)
 
 Pause the readline and unmute the output stream that was
 used to create the readline interface, which is `process.stdout`
 by default.
 
-### [.resume](index.js#L707)
+### [.resume](index.js#L706)
 
 [Resume](https://nodejs.org/api/readline.html#readline_rl_resume) the readline input stream if it has been paused.
 
 * `returns` **{undefined}**
 
-### [.choices](index.js#L760)
+### [.choices](index.js#L759)
 
 Getter for getting the choices array from the question.
 
 * `returns` **{Object}**: Choices object
 
-### [.message](index.js#L777)
+### [.message](index.js#L776)
 
 Getter that returns `question.message` after passing it to [format](#format).
 
 * `returns` **{String}**: A formatted prompt message.
 
-### [.symbol](index.js#L798)
+### [.symbol](index.js#L797)
 
 Getter/setter for getting the checkbox symbol to use.
 
@@ -446,7 +446,7 @@ Getter/setter for getting the checkbox symbol to use.
 prompt.symbol = '[ ]';
 ```
 
-### [.prefix](index.js#L824)
+### [.prefix](index.js#L823)
 
 Getter/setter that returns the prefix to use before `question.message`. The default value is a green `?`.
 
@@ -459,7 +459,7 @@ Getter/setter that returns the prefix to use before `question.message`. The defa
 prompt.prefix = ' ❤ ';
 ```
 
-### [.ask](index.js#L852)
+### [.ask](index.js#L851)
 
 Static convenience method for running the [.ask](#ask) method. Takes the same arguments as the contructror.
 
@@ -481,7 +481,7 @@ var prompt = require('prompt-base');
   });
 ```
 
-### [.run](index.js#L878)
+### [.run](index.js#L877)
 
 Static convenience method for running the [.run](#run) method. Takes the same arguments as the contructror.
 
@@ -503,7 +503,7 @@ var prompt = require('prompt-base');
   });
 ```
 
-### [.Question](index.js#L894)
+### [.Question](index.js#L893)
 
 Create a new `Question`. See [prompt-question](https://github.com/enquirer/prompt-question) for more details.
 
@@ -518,7 +518,7 @@ Create a new `Question`. See [prompt-question](https://github.com/enquirer/promp
 var question = new Prompt.Question({name: 'foo'});
 ```
 
-### [.Choices](index.js#L908)
+### [.Choices](index.js#L907)
 
 Create a new `Choices` object. See [prompt-choices](https://github.com/enquirer/prompt-choices) for more details.
 
@@ -533,7 +533,7 @@ Create a new `Choices` object. See [prompt-choices](https://github.com/enquirer/
 var choices = new Prompt.Choices(['foo', 'bar', 'baz']);
 ```
 
-### [.Separator](index.js#L921)
+### [.Separator](index.js#L920)
 
 Create a new `Separator` object. See [choices-separator](https://github.com/enquirer/choices-separator) for more details.
 
@@ -632,7 +632,7 @@ Please read the [contributing guide](.github/contributing.md) for advice on open
 
 | **Commits** | **Contributor** | 
 | --- | --- |
-| 147 | [jonschlinkert](https://github.com/jonschlinkert) |
+| 156 | [jonschlinkert](https://github.com/jonschlinkert) |
 | 6 | [doowb](https://github.com/doowb) |
 
 ### Building docs
