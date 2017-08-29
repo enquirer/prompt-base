@@ -1,11 +1,12 @@
 {
   "name": "prompt-base",
   "description": "Base prompt module used for creating custom prompts.",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "homepage": "https://github.com/enquirer/prompt-base",
   "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
   "contributors": [
     "Brian Woodward (https://twitter.com/doowb)",
+    "James Clark (http://arbitraryclark.blogspot.com)",
     "Jon Schlinkert (http://twitter.com/jonschlinkert)"
   ],
   "repository": "enquirer/prompt-base",
