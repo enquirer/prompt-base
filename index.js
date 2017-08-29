@@ -825,7 +825,11 @@ Object.defineProperty(Prompt.prototype, 'prefix', {
     this.question.prefix = prefix;
   },
   get: function() {
-    return this.question.prefix || (log.cyan('?') + ' ');
+    if (typeof this.question.prefix === 'undefined') {
+      return log.cyan('?') + ' ';
+    } else {
+      return this.question.prefix;
+    }
   }
 });
 
