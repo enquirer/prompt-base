@@ -26,13 +26,13 @@
   },
   "dependencies": {
     "component-emitter": "^1.2.1",
-    "debug": "^2.6.8",
+    "debug": "^3.0.1",
     "koalas": "^1.0.2",
     "log-utils": "^0.2.1",
     "prompt-actions": "^3.0.2",
-    "prompt-question": "^5.0.0",
+    "prompt-question": "^5.0.1",
     "readline-ui": "^2.2.3",
-    "readline-utils": "^2.2.1",
+    "readline-utils": "^2.2.3",
     "static-extend": "^0.1.2"
   },
   "devDependencies": {
@@ -43,7 +43,7 @@
     "gulp-format-md": "^1.0.0",
     "gulp-istanbul": "^1.1.2",
     "gulp-mocha": "^3.0.1",
-    "mocha": "^3.4.2",
+    "mocha": "^3.5.0",
     "repeat-string": "^1.6.1",
     "strip-color": "^0.1.0"
   },
