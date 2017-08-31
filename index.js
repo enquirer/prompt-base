@@ -384,6 +384,9 @@ Prompt.prototype.render = function(state) {
   context.append = this.renderError(context);
   context.message = this.renderMessage(context);
 
+  // override message in custom prompts
+  this.emit('render', context);
+
   // render message with default settings
   switch (context.status) {
     case 'help':
@@ -407,9 +410,6 @@ Prompt.prototype.render = function(state) {
 
   // push context onto history array, for debugging
   this.contextHistory.push(context);
-
-  // override message in custom prompts
-  this.emit('render', context);
   this.ui.render(context.message, context.append);
 };
 
@@ -576,7 +576,7 @@ Prompt.prototype.dispatch = function(input, key) {
     this.position = action.call(this.actions, this.position, key);
   }
 
-  Promise.resolve(this.validate(input, key))
+  return Promise.resolve(this.validate(input, key))
     .then(function(state) {
       self.state = state;
 
