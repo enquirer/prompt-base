@@ -1,5 +1,11 @@
 # Release history
 
+## v4.1.0
+
+**Changed**
+
+- `render` is now emitted before the message is created.
+
 ## v4.0.2
 
 **Fixed**
