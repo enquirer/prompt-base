@@ -394,7 +394,8 @@ Prompt.prototype.render = function(state) {
     case 'expanded':
     case 'initialized':
       context.message += this.renderHelp(context);
-      context.message += this.renderOutput(context);
+      context.message += this.renderBody(context);
+      context.message += this.renderFooter(context);
       break;
     case 'answered':
       context.message += this.renderAnswer(context);
@@ -403,7 +404,8 @@ Prompt.prototype.render = function(state) {
     case 'interacted':
     case 'submitted':
     default: {
-      context.message += this.renderOutput(context);
+      context.message += this.renderBody(context);
+      context.message += this.renderFooter(context);
       break;
     }
   }
@@ -433,6 +435,31 @@ Prompt.prototype.render = function(state) {
 
 Prompt.prototype.renderMessage = function(context) {
   return context.prefix + log.bold(context.message) + ' ';
+};
+
+/**
+ * Called by [render](#render) to render the readline `line`
+ * when `prompt.status` is anything besides `answered`, which
+ * includes everything except for error and help messages.
+ *
+ * @return {String}
+ * @api public
+ */
+
+Prompt.prototype.renderBody = function(context) {
+  return this.renderMask(this.rl.line);
+};
+
+/**
+ * Called by [render](#render) to add a footer after
+ * the message body.
+ *
+ * @return {String}
+ * @api public
+ */
+
+Prompt.prototype.renderFooter = function() {
+  return this.options.footer || '';
 };
 
 /**
@@ -483,20 +510,7 @@ Prompt.prototype.renderError = function(context) {
 };
 
 /**
- * Called by [render](#render) to render the readline `line`
- * when `prompt.status` is anything besides `answered`, which
- * includes everything except for error and help messages.
- *
- * @return {String}
- * @api public
- */
-
-Prompt.prototype.renderOutput = function(context) {
-  return this.renderMask(this.rl.line);
-};
-
-/**
- * Mask user input. Called by [renderOutput](#renderOutput),
+ * Mask user input. Called by [renderBody](#renderBody),
  * this is an identity function that does nothing by default,
  * as it's intended to be overwritten in custom prompts, such
  * as [prompt-password][].
